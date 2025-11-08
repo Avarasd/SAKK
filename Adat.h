@@ -1,0 +1,23 @@
+typedef struct board {
+    char allas[8][8];
+    struct board* prev;
+    int numNext;
+    struct board** next;
+    int id;
+    int previd;
+
+} Board;
+
+static Board* head;
+
+Board* add_new_board(Board *curr);
+
+Board* create_board(Board* previous);
+
+Board* add_new_board(Board *curr);
+
+void felszabaditas(Board* curr);
+
+void save_boards(char* filename);
+
+void load_boards(char* filename);
