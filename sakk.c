@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <stdbool.h>
 #include <stdlib.h>
+#define SMALL_CAP_DISTANCE 32
 
 struct boolok
 {
@@ -62,7 +63,7 @@ input mostlepes(char lepes[5], char allas[8][8]) {
     ki.figura = allas[ki.honnansor][ki.honnanoszlop];
     if(ki.figura > 96){
         ki.vilagos = true;
-        ki.figura -= 32;
+        ki.figura -= SMALL_CAP_DISTANCE;
     }else ki.vilagos = false;
     printf("%c \n", tabla[ki.honnansor][ki.honnanoszlop]);
     printf("ELSO CHECKPOINT %c \n", ki.figura);
@@ -72,7 +73,7 @@ input mostlepes(char lepes[5], char allas[8][8]) {
 };
 void allasmegvaltoztatas(input lepes, char allas[8][8]){
     if(lepes.vilagos){
-        allas[lepes.hovasor][lepes.hovaoszlop] = lepes.figura + 32;
+        allas[lepes.hovasor][lepes.hovaoszlop] = lepes.figura + SMALL_CAP_DISTANCE;
     }else allas[lepes.hovasor][lepes.hovaoszlop] = lepes.figura;
 
     allas[lepes.honnansor][lepes.honnanoszlop] = '.';
@@ -126,20 +127,6 @@ bool szabalyoslepes(input lepes, char allas[8][8]){
                         }
                         allasmegvaltoztatas(lepes,allas);
                     }
-                }
-            }
-            if(lepes.utes){
-                if(tavolsagsor == tavolsagoszlop == 1 && sortavpozitiv && oszloptavpozitiv){
-
-                }
-            }else{
-                if((tavolsagsor <= lepobabu.lepeselore && sortavpozitiv) || (tavolsagsor == 2 && sortavpozitiv && lepes.honnansor == 1)){
-                    for(int i = 1; i <=tavolsagsor; i++){
-                        if(allas[lepes.honnansor + i][lepes.honnanoszlop] != '.'){
-                            return false;
-                        }
-                    }
-                    allasmegvaltoztatas(lepes, allas);
                 }
             }  
         break;
