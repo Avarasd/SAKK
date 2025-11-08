@@ -8,7 +8,7 @@ typedef struct board {
 
 } Board;
 
-static Board* head;
+extern Board* head;
 
 Board* add_new_board(Board *curr);
 

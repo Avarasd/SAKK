@@ -1,19 +1,11 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include "debugmalloc.h"
+#include "Adat.h"
 
-typedef struct board {
-    char allas[8][8];
-    struct board* prev;
-    int numNext;
-    struct board** next;
-    int id;
-    int previd;
-
-} Board;
+static int maxid = 0;
 
 #pragma pack(1)
-
 typedef struct boardelement {
     char allas[8][8];
     int id;
@@ -21,18 +13,13 @@ typedef struct boardelement {
 
 } BoardElement;
 
-static Board* head = NULL;
-static int maxid = 0;
-
-Board* search_board(int id, Board* curr);
-
-Board* add_new_board(Board *curr);
-
-void update_maxid(int id){
+static void update_maxid(int id){
     if(id > maxid){
         maxid = id;
     }
 }
+
+static Board* search_board(int id, Board* curr);
 
 Board* create_board(Board* previous){
     Board* new = (Board*)malloc(sizeof(Board));
@@ -49,7 +36,7 @@ Board* create_board(Board* previous){
     return new;
 }
 
-Board* create_board_from_element(BoardElement* element){
+static Board* create_board_from_element(BoardElement* element){
     Board* prev = NULL;
     Board* curr = NULL;
     if(element -> previd == -1){
@@ -97,7 +84,7 @@ void felszabaditas(Board* curr){
     return;
 }
 
-void saveboard(FILE* fp, Board* curr){
+static void saveboard(FILE* fp, Board* curr){
     BoardElement element;
 
     element.id = curr->id;
@@ -139,7 +126,7 @@ void load_boards(char* filename){
     fclose(filepointer);
 }
 
-Board* search_board(int id, Board* curr){
+static Board* search_board(int id, Board* curr){
     Board* found = NULL;
     if(curr->id == id){
         return curr;
@@ -150,22 +137,4 @@ Board* search_board(int id, Board* curr){
         }
     }
     return NULL;
-}
-
-int main(){
-    head = create_board(NULL);
-    Board* board1 = add_new_board(head);
-    Board* board2 = add_new_board(board1);
-    Board* board3 = add_new_board(board1);
-    Board* board4 = add_new_board(board2);
-    Board* board5 = add_new_board(head);
-    Board* board6 = add_new_board(board3);
-
-    save_boards("avar.dat");
-
-    felszabaditas(head);
-
-    load_boards("avar.dat");
-    save_boards("avar2.dat");
-    felszabaditas(head);
 }
