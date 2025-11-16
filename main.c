@@ -2,11 +2,12 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include "debugmalloc.h"
-#include "Adat.h"
-#include "Sakk.h"
+#include "storage.h"
+#include "chess.h"
 
 Board* head = NULL;
-char tabla[8][8] = {
+Booleans game_booleans;
+char board[8][8] = {
         {'r', 'n', 'b', 'q', 'k', 'b', 'n', 'r'},
         {'p', 'p', 'p', 'p', 'p', 'p', 'p', 'p'},
         {'.', '.', '.', '.', '.', '.', '.', '.'},
@@ -18,31 +19,30 @@ char tabla[8][8] = {
 };
 
 int main(){
-    bool sakk = false;
-    bool matt = false;
-    bool passz = false;
+    game_booleans.check = false;
+    game_booleans.mate = false;
+    game_booleans.stalemate = false;
 
-    while (matt != 1) {
-        char bemenet[5];
+    while (!game_booleans.mate) {
+        char move[5];
         for (int sor = 7; sor >= 0; sor--) {
             for (int elem = 0; elem < 8; elem++) {
-                printf("%c ", tabla[sor][elem]);
+                printf("%c ", board[sor][elem]);
             }
             printf("%d ",sor + 1);
             printf(" \n");
         }
 
         printf("A B C D E F G H \n\n");
-        printf("Adj meg egy lepest papi! \n");
-        scanf("%s", bemenet);
+        printf("Adj meg egy lepest! \n");
+        scanf("%s", move);
+        if(move[0] == 'X') return 0;
+        Input formatted_input = curr_move(move, board);
 
-        input bemenetformazott = mostlepes(bemenet, tabla);
-        printf("%d, %d, %d, %d, %c\n", bemenetformazott.honnanoszlop, bemenetformazott.honnansor, bemenetformazott.hovaoszlop, bemenetformazott.hovasor, bemenetformazott.figura);
-
-        if(szabalyos_lepesforma_e(bemenetformazott, tabla)){
+        if(is_move_pattern_valid(formatted_input, board)){
             printf("Szabalyos lepes \n");
         }else{
-            printf("Lepj ujra papi mert helytelen\n");
+            printf("Lepj ujra mert helytelen\n");
         }
     }
 

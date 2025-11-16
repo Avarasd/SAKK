@@ -8,8 +8,8 @@
                 "-fdiagnostics-color=always",
                 "-g",
                 "main.c",      
-                "Adat.c",
-                "Sakk.c",      
+                "storage.c",
+                "chess.c",      
                 "-o",
                 "main.exe"
             ],
