@@ -1,22 +1,50 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <stdbool.h>
+#include "debugmalloc.h"
 #include "Adat.h"
+#include "Sakk.h"
 
 Board* head = NULL;
+char tabla[8][8] = {
+        {'r', 'n', 'b', 'q', 'k', 'b', 'n', 'r'},
+        {'p', 'p', 'p', 'p', 'p', 'p', 'p', 'p'},
+        {'.', '.', '.', '.', '.', '.', '.', '.'},
+        {'.', '.', '.', '.', '.', '.', '.', '.'},
+        {'.', '.', '.', '.', '.', '.', '.', '.'},
+        {'.', '.', '.', '.', '.', '.', '.', '.'},
+        {'P', 'P', 'P', 'P', 'P', 'P', 'P', 'P'},
+        {'R', 'N', 'B', 'Q', 'K', 'B', 'N', 'R'}
+};
+
 int main(){
-    head = create_board(NULL);
-    Board* board1 = add_new_board(head);
-    Board* board2 = add_new_board(board1);
-    Board* board3 = add_new_board(board1);
-    Board* board4 = add_new_board(board2);
-    Board* board5 = add_new_board(head);
-    Board* board6 = add_new_board(board3);
+    bool sakk = false;
+    bool matt = false;
+    bool passz = false;
 
-    save_boards("avar.dat");
+    while (matt != 1) {
+        char bemenet[5];
+        for (int sor = 7; sor >= 0; sor--) {
+            for (int elem = 0; elem < 8; elem++) {
+                printf("%c ", tabla[sor][elem]);
+            }
+            printf("%d ",sor + 1);
+            printf(" \n");
+        }
 
-    felszabaditas(head);
+        printf("A B C D E F G H \n\n");
+        printf("Adj meg egy lepest papi! \n");
+        scanf("%s", bemenet);
 
-    load_boards("avar.dat");
-    save_boards("avar2.dat");
-    felszabaditas(head);
+        input bemenetformazott = mostlepes(bemenet, tabla);
+        printf("%d, %d, %d, %d, %c\n", bemenetformazott.honnanoszlop, bemenetformazott.honnansor, bemenetformazott.hovaoszlop, bemenetformazott.hovasor, bemenetformazott.figura);
+
+        if(szabalyos_lepesforma_e(bemenetformazott, tabla)){
+            printf("Szabalyos lepes \n");
+        }else{
+            printf("Lepj ujra papi mert helytelen\n");
+        }
+    }
+
+    return 0;   
 }

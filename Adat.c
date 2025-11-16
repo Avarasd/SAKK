@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
-#include "debugmalloc.h"
+#include <string.h>
+
 #include "Adat.h"
 
 static int maxid = 0;
@@ -71,12 +72,12 @@ Board* add_new_board(Board *curr){
     return nextboard; //NULL, ha valami nem jo
 }
 
-void felszabaditas(Board* curr){
+void free_all(Board* curr){
     maxid = 0;
     printf("%p %d %p\n", curr, curr->id, curr->next);
     if(curr->next != NULL){
         for(int i = 0; i <curr->numNext; i++){
-            felszabaditas(curr->next[i]);
+            free_all(curr->next[i]);
         }
         free(curr -> next);
     }

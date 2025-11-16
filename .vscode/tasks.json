@@ -7,8 +7,9 @@
             "args": [
                 "-fdiagnostics-color=always",
                 "-g",
-                "main.c",      // You MUST include this
-                "Adat.c",      // And you MUST include this
+                "main.c",      
+                "Adat.c",
+                "Sakk.c",      
                 "-o",
                 "main.exe"
             ],
