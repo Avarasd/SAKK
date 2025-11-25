@@ -1,3 +1,5 @@
+#include <stdbool.h>
+
 typedef enum{
     STATE_MAIN_MENU,
     STATE_GAME_MENU,
@@ -10,18 +12,23 @@ typedef enum{
     STATE_EXIT
 } State;
 
+void draw_square(int x1, int y1, int x2, int y2);
 void display_init();
+void display_clear();
 
-void game_mode_display(int minutes);
+void display_board(char position[8][8], int x, int y);
+void display_info(bool isWhiteTurn, int movec);
+void display_get_input(char* buffer);
+void display_game_state(bool isValid, bool isCheck, bool isMate, bool isStalemate);
+void update_moves(char move[5], int move_count);
 
-int game_mode_time_set(void);
 
 State game_mode_menu(void);
-
+State display_menu(void);
 State anal_mode_menu(void);
 
 bool anal_mode_file_set(char* filename);
 
 void anal_mode_display(char fileName[50]);
 
-State display_menu(void);
+int game_mode_time_set(void);

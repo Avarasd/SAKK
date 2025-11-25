@@ -29,6 +29,7 @@ typedef struct booleans
     bool white_rook_H_moved;
     bool black_rook_A_moved;
     bool black_rook_H_moved;
+    bool playing;
 } Booleans;
 
 typedef struct piece

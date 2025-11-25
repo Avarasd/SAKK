@@ -72,31 +72,59 @@ void draw_square(int x1, int y1, int x2, int y2) {
     econio_textbackground(COL_RESET);
 }
 
-void econio_display_info(bool isWhiteTurn, int move){
+void display_info(bool isWhiteTurn, int move){
     econio_textcolor(COL_WHITE);
-    econio_gotoxy(60, 5);
+    econio_gotoxy(75, 5);
+    printf("                        ");
+    econio_gotoxy(75, 5);
     printf("%d. LÉPÉS, %s JÖN", move, isWhiteTurn ? "VILÁGOS" : "SÖTÉT");
 }
 
+void display_game_state(bool isValid, bool isCheck, bool isMate, bool isStalemate){
+    //ELŐZŐ TÖRLÉSE
+    econio_gotoxy(75, 7);
+    for(int i=0; i< 20; i++) printf(" ");
+
+    econio_textcolor(COL_RED);
+    econio_textbackground(COL_BLUE);
+    econio_gotoxy(75, 7);
+    if(isValid){
+    if(isCheck) printf("SAKK!");
+    else if(isMate) printf("MATT!");
+    else if(isStalemate) printf("PATT!");
+    else printf("Szabályos lépés!");
+    } else{
+        printf("Szabálytalan lépés!");
+    }
+    econio_textcolor(COL_RESET);
+    econio_textbackground(COL_RESET);
+}
+
 void display_get_input(char* input){
-    econio_normalmode();
     econio_gotoxy(30, 17);
     printf("Lepes:");
     for(int i = 0; i < 20; i++) printf(" ");
     econio_gotoxy(47, 17);
-    scanf("%s", &input);
+    econio_normalmode();
+    scanf("%s", input);
     econio_rawmode();
+}
+
+void update_moves(char move[5], int move_count){
+    econio_gotoxy(10, 3);
+    printf("Lépések:");
+    if(move_count %2 == 0){
+        econio_gotoxy(17, 5 + ((move_count - 1) / 2));
+        printf("%s", move);
+    } else {
+        econio_gotoxy(6, 5 + ((move_count - 1) / 2));
+        printf("%d. %s -        ",move_count/2 + 1, move);
+    }
+    draw_square(5, 4, 22, 6 + (move_count - 1) / 2);
 }
 
 void display_clear(){
     econio_clrscr();
-}
-
-void game_mode_display(int minutes){
-    econio_clrscr();
-    printf("%d", minutes);
-    econio_sleep(10);
-    //display_board(board, 30, 2);
 }
 
 int game_mode_time_set(void){
@@ -111,6 +139,10 @@ int game_mode_time_set(void){
     getchar();
     econio_rawmode();
     return minutes;
+}
+
+void game_mode_file_save(char* fileName){
+    
 }
 
 State game_mode_menu(void){
@@ -160,7 +192,6 @@ bool anal_mode_file_set(char* filename){
     printf("<Válassz egy fájl az alábbiak közül>");
     char fileList[10][100];
     int count = 0;
-    int x_offset = 0;
     int y_offset = 0;
     hFind = FindFirstFile("Games\\*.dat", &findData);
     if(hFind == INVALID_HANDLE_VALUE){
@@ -236,37 +267,7 @@ State display_menu(void){
     }
 }
 
-int main() {
-    display_init();
-    State currentState = STATE_MAIN_MENU;
-    int minutes = 0;
-    char fileName[200];
-    while(currentState != STATE_EXIT){
-        switch(currentState){
-            case STATE_MAIN_MENU:
-                currentState = display_menu();
-                break;
-            case STATE_GAME_MENU:
-                currentState = game_mode_menu();
-                break;
-            case STATE_GAME_SETUP:
-                minutes = game_mode_time_set();
-                currentState = STATE_GAME_RUNNING;
-                break;
-            case STATE_GAME_RUNNING:
-                game_mode_display(minutes);
-                currentState = STATE_GAME_END;
-                break;
-            case STATE_ANALYSIS_MENU:
-                currentState = anal_mode_menu();
-                break;
-            case STATE_ANALYSIS_SETUP:
-                if(anal_mode_file_set(fileName)) currentState = STATE_ANALYSIS_RUNNING;
-                else currentState = STATE_ANALYSIS_MENU;
-                break;
-            case STATE_ANALYSIS_RUNNING:
-                anal_mode_display(fileName);
-        }
-    }
-    return 0;
-}
+// int main() {
+    
+//     return 0;
+// }
