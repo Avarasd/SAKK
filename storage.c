@@ -44,19 +44,23 @@ Board* create_board(Board* previous){
 static Board* create_board_from_element(BoardElement* element){
     Board* prev = NULL;
     Board* curr = NULL;
+
     if(element -> previd == -1){
         curr = create_board(NULL);
         head = curr;
-    }else{//megkeressük hogy melyik board az ezt megelőző
+    }else{
         prev = search_board(element -> previd, head);
-        if(prev == NULL) return NULL; //TODO ERROR KÓD
+        if(prev == NULL) return NULL; 
         curr = add_new_board(prev);
-        if(curr == NULL) return NULL; //TODO ERROR
-        memcpy(curr->allas, element->allas, sizeof(element->allas));
-        curr -> id = element ->id;
-        curr -> previd = element -> previd;
-        update_maxid(curr ->id);
     }
+
+    if (curr != NULL) {
+        memcpy(curr->allas, element->allas, sizeof(element->allas));
+        curr -> id = element -> id;
+        curr -> previd = element -> previd;
+        update_maxid(curr -> id);
+    }
+
     return curr;
 }
 
@@ -110,7 +114,7 @@ static void saveboard(FILE* fp, Board* curr){
 
 void save_boards(char* filename){
     FILE* filepointer;
-    filepointer = fopen(filename, "w");
+    filepointer = fopen(filename, "wb");
     saveboard(filepointer, head);
 
     fclose(filepointer);
@@ -120,10 +124,12 @@ void load_boards(char* filename){
     BoardElement element;
     int size;
     FILE* filepointer;
-    filepointer = fopen(filename, "r");
-    //loadboard(filepointer, head);
-
-    while(size = fread(&element, sizeof(element), 1, filepointer) > 0){
+    filepointer = fopen(filename, "rb");
+    if(filepointer == NULL){
+        printf("ASDADSADSADA");
+        return;
+    }
+    while((size = fread(&element, sizeof(element), 1, filepointer)) > 0){
         printf("%d %d BOARD\n", element.id, element.previd);
         if(size != 1) break; //TODO HIBAKOD
         create_board_from_element(&element);

@@ -9,11 +9,19 @@
 #include <windows.h> // Ez kell a SetConsoleOutputCP-hez
 #endif
 
-void display_init() {
+void display_init(void) {
     #ifdef _WIN32
     SetConsoleOutputCP(65001);
     #endif
     econio_rawmode(); // Alapból raw mód a menühöz
+}
+
+void display_clear(){
+    econio_clrscr();
+}
+
+void display_sleep(int seconds){
+    econio_sleep(seconds);
 }
 
 void draw_square(int x1, int y1, int x2, int y2) {
@@ -83,15 +91,15 @@ void display_info(bool isWhiteTurn, int move){
 void display_game_state(bool isValid, bool isCheck, bool isMate, bool isStalemate){
     //ELŐZŐ TÖRLÉSE
     econio_gotoxy(75, 7);
-    for(int i=0; i< 20; i++) printf(" ");
+    for(int i=0; i< 30; i++) printf(" ");
 
     econio_textcolor(COL_RED);
     econio_textbackground(COL_BLUE);
     econio_gotoxy(75, 7);
     if(isValid){
-    if(isCheck) printf("SAKK!");
-    else if(isMate) printf("MATT!");
-    else if(isStalemate) printf("PATT!");
+    if(isMate) printf("MATT! A játéknak vége.");
+    else if(isStalemate) printf("PATT! A játéknak vége.");
+    else if(isCheck) printf("SAKK!");
     else printf("Szabályos lépés!");
     } else{
         printf("Szabálytalan lépés!");
@@ -101,10 +109,12 @@ void display_game_state(bool isValid, bool isCheck, bool isMate, bool isStalemat
 }
 
 void display_get_input(char* input){
-    econio_gotoxy(30, 17);
-    printf("Lepes:");
-    for(int i = 0; i < 20; i++) printf(" ");
-    econio_gotoxy(47, 17);
+    econio_gotoxy(31, 17);
+    printf("Adj meg egy lépést:");
+    draw_square(30, 16, 62, 18);
+    econio_gotoxy(55,17);
+    for(int i = 0; i < 5; i++) printf(" ");
+    econio_gotoxy(55, 17);
     econio_normalmode();
     scanf("%s", input);
     econio_rawmode();
@@ -123,27 +133,42 @@ void update_moves(char move[5], int move_count){
     draw_square(5, 4, 22, 6 + (move_count - 1) / 2);
 }
 
-void display_clear(){
-    econio_clrscr();
-}
-
 int game_mode_time_set(void){
     int minutes;
     econio_clrscr();
     econio_gotoxy(32, 5);
     printf("<<Add meg a percek számát!>>");
     draw_square(29,4,60, 9);
+
     econio_gotoxy(34, 7);
     econio_normalmode();
     scanf(" %d", &minutes);
-    getchar();
+
+    while(getchar() != '\n');
     econio_rawmode();
     return minutes;
 }
 
-void game_mode_file_save(char* fileName){
-    
+State game_mode_end(char* buffer){
+    char input[50];
+    econio_clrscr();
+    econio_gotoxy(34, 5);
+    printf("Add meg a parti nevét (max 20 karakter)");
+    draw_square(29, 4, 90, 9);
+
+    econio_gotoxy(34, 7);
+    econio_normalmode();
+    scanf("%49s", input);
+    sprintf(buffer, "Games\\%s.dat", input);
+    while(getchar() != '\n');
+    econio_rawmode();
+    econio_gotoxy(34, 8);
+    printf("Sikeres mentés! Nyomj egy gombot a folytatáshoz");
+    while(true){
+        if(econio_kbhit()) return STATE_MAIN_MENU;
+    }
 }
+
 
 State game_mode_menu(void){
     econio_clrscr();
@@ -221,7 +246,10 @@ bool anal_mode_file_set(char* filename){
     econio_gotoxy(32, 11 + y_offset);
     char choice;
     while(true){
-        if(econio_kbhit()) choice = econio_getch();
+        if(econio_kbhit()){
+            choice = econio_getch();
+            break;
+        }
     }
     int input = choice - '0';
     if(input > 0 && input < count + 1){
@@ -233,15 +261,48 @@ bool anal_mode_file_set(char* filename){
         return false;
     }
     #else
-        econio_gotoxy(31,5)
+        econio_gotoxy(31,5);
         printf("Ez a funkció csak Windowson elérhető");
         return false;
     #endif 
 }
 
-void anal_mode_display(char fileName[50]){
-    econio_clrscr();
+int display_anal_info(void){
+    econio_textcolor(COL_WHITE);
+    econio_gotoxy(75, 5);
+    printf("                               ");
+    econio_gotoxy(75, 5);
+    printf("Válassz az alábbi opciók közül!");
+    econio_gotoxy(75, 7);
+    printf("< Hátra lépés");
+    econio_gotoxy(75, 9);
+    printf("> Előre lépés");
+    econio_gotoxy(75, 11);
+    printf("1. Alapállásra lépés");
+    econio_gotoxy(75, 13);
+    printf("2. Végállásra lépés");
+    econio_gotoxy(75, 15);
+    printf("3. Valahányadik lépésre lépés");
+    econio_gotoxy(75, 17);
+    printf("4. Alternatív lépés megadása");
+    econio_gotoxy(75, 19);
+    printf("X. Kilépés");
+    while(true){
+        if(econio_kbhit()){
+            switch(econio_getch()){
+                case KEY_LEFT : return 'l';break;
+                case KEY_RIGHT : return 'r';break;
+                case 'x' : return 'x';break;
+                case 'X' : return 'x';break;
+                case '1' : return '1'; break;
+                case '2' : return '2'; break;
+                case '3' : return '3'; break;
+                case '4' : return '3'; break;
+            }
+        }
+    }
 }
+
 
 State display_menu(void){
     while(true){
@@ -266,8 +327,3 @@ State display_menu(void){
         }
     }
 }
-
-// int main() {
-    
-//     return 0;
-// }

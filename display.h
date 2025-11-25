@@ -15,6 +15,7 @@ typedef enum{
 void draw_square(int x1, int y1, int x2, int y2);
 void display_init();
 void display_clear();
+void display_sleep(int seconds);
 
 void display_board(char position[8][8], int x, int y);
 void display_info(bool isWhiteTurn, int movec);
@@ -28,7 +29,6 @@ State display_menu(void);
 State anal_mode_menu(void);
 
 bool anal_mode_file_set(char* filename);
-
-void anal_mode_display(char fileName[50]);
-
+char display_anal_info(void);
 int game_mode_time_set(void);
+State game_mode_end(char* buffer);
