@@ -2,32 +2,18 @@
 #include <time.h>      // REQUIRED for time()
 #include <stdbool.h>
 #include <stdlib.h>
+#include <direct.h>
 #include "econio.h"
+#include "display.h"
 #ifdef _WIN32
 #include <windows.h> // Ez kell a SetConsoleOutputCP-hez
 #endif
-extern char board[8][8];
-
-typedef enum{
-    STATE_MAIN_MENU,
-    STATE_GAME_MENU,
-    STATE_GAME_SETUP,
-    STATE_GAME_RUNNING,
-    STATE_ANALYSIS_MENU,
-    STATE_ANALYSIS_SETUP,
-    STATE_ANALYSIS_RUNNING,
-    STATE_EXIT
-} State;
 
 void display_init() {
     #ifdef _WIN32
     SetConsoleOutputCP(65001);
     #endif
     econio_rawmode(); // Alapból raw mód a menühöz
-}
-
-void game_init(void){
-    int minutes = 1;
 }
 
 void draw_square(int x1, int y1, int x2, int y2) {
@@ -122,6 +108,7 @@ int game_mode_time_set(void){
     econio_gotoxy(34, 7);
     econio_normalmode();
     scanf(" %d", &minutes);
+    getchar();
     econio_rawmode();
     return minutes;
 }
@@ -164,6 +151,67 @@ State anal_mode_menu(void){
     }
 }
 
+bool anal_mode_file_set(char* filename){
+    #ifdef _WIN32
+    WIN32_FIND_DATA findData;
+    HANDLE hFind;
+    econio_clrscr();
+    econio_gotoxy(31, 5);
+    printf("<Válassz egy fájl az alábbiak közül>");
+    char fileList[10][100];
+    int count = 0;
+    int x_offset = 0;
+    int y_offset = 0;
+    hFind = FindFirstFile("Games\\*.dat", &findData);
+    if(hFind == INVALID_HANDLE_VALUE){
+        econio_gotoxy(31, 7);
+        printf("Nincs betölthető fájl");
+        econio_gotoxy(31, 9);
+        printf("Nyomj egy gombot a visszalépéshez");
+        draw_square(29,4,67,11);
+        while(true){
+            if(econio_kbhit()) return false;
+        }
+    }
+    econio_gotoxy(32, 7);
+    printf("Válassz sorszámot:");
+    do{
+        if(count < 10){
+            econio_gotoxy(31, 9 + y_offset);
+            strcpy(fileList[count], findData.cFileName);
+            printf("%d. %s", count + 1, fileList[count]);
+            count++;
+            y_offset += 2;
+        }
+    } while(FindNextFile(hFind, &findData) != 0);
+
+    FindClose(hFind);
+    draw_square(29,4,67,9 + y_offset);
+    econio_gotoxy(32, 11 + y_offset);
+    char choice;
+    while(true){
+        if(econio_kbhit()) choice = econio_getch();
+    }
+    int input = choice - '0';
+    if(input > 0 && input < count + 1){
+        sprintf(filename, "Games\\%s", fileList[input - 1]);
+        return true;
+    }else{
+        printf("Érvénytelen sorszám");
+        econio_sleep(2);
+        return false;
+    }
+    #else
+        econio_gotoxy(31,5)
+        printf("Ez a funkció csak Windowson elérhető");
+        return false;
+    #endif 
+}
+
+void anal_mode_display(char fileName[50]){
+    econio_clrscr();
+}
+
 State display_menu(void){
     while(true){
         econio_clrscr();
@@ -181,6 +229,7 @@ State display_menu(void){
                     case '1': return STATE_GAME_MENU; break;
                     case '2': return STATE_ANALYSIS_MENU; break;
                     case 'x': return STATE_EXIT; break;
+                    case 'X': return STATE_EXIT; break;
                 }
             }
         }
@@ -191,6 +240,7 @@ int main() {
     display_init();
     State currentState = STATE_MAIN_MENU;
     int minutes = 0;
+    char fileName[200];
     while(currentState != STATE_EXIT){
         switch(currentState){
             case STATE_MAIN_MENU:
@@ -205,14 +255,18 @@ int main() {
                 break;
             case STATE_GAME_RUNNING:
                 game_mode_display(minutes);
+                currentState = STATE_GAME_END;
+                break;
+            case STATE_ANALYSIS_MENU:
+                currentState = anal_mode_menu();
+                break;
+            case STATE_ANALYSIS_SETUP:
+                if(anal_mode_file_set(fileName)) currentState = STATE_ANALYSIS_RUNNING;
+                else currentState = STATE_ANALYSIS_MENU;
+                break;
             case STATE_ANALYSIS_RUNNING:
-                game_init();
+                anal_mode_display(fileName);
         }
     }
-    // int input = display_menu();
-    // switch(input){
-    //     case 1: game_mode_menu(); break;
-    //     case 2: anal_mode_menu(); break;
-    //     case 3: exit; break;
-    // }
+    return 0;
 }

@@ -10,6 +10,7 @@ DQMKMR
 #include "debugmalloc.h"
 #include "storage.h"
 #include "chess.h"
+#include "display.h"
 
 Board* head = NULL;
 Booleans game_booleans;
