@@ -26,3 +26,7 @@ void free_all(Board* curr);
 void save_boards(char* filename);
 
 void load_boards(char* filename);
+
+Board* find_last_board(Board* curr);
+
+Board* search_board_linear(Board* head, int move_count);

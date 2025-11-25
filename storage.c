@@ -149,3 +149,20 @@ static Board* search_board(int id, Board* curr){
     }
     return NULL;
 }
+
+Board* find_last_board(Board* curr){
+    Board* last = curr;
+    while(last->next != NULL){
+        last = last->next[0];
+    }
+    return last;
+}
+
+Board* search_board_linear(Board* head, int move_count){
+    Board* found = head;
+    for(int i = 0; i < move_count; i++){
+        if(found->next == NULL) return NULL;
+        found = found->next[0];
+    }
+    return found;
+}

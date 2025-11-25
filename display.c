@@ -24,6 +24,7 @@ void display_sleep(int seconds){
     econio_sleep(seconds);
 }
 
+//FORRÁS: INTERNET
 void draw_square(int x1, int y1, int x2, int y2) {
     econio_gotoxy(x1,y1); putchar('+');
     econio_gotoxy(x2,y1); putchar('+');
@@ -208,6 +209,7 @@ State anal_mode_menu(void){
     }
 }
 
+//FORRÁS: INTERNET
 bool anal_mode_file_set(char* filename){
     #ifdef _WIN32
     WIN32_FIND_DATA findData;
@@ -269,24 +271,27 @@ bool anal_mode_file_set(char* filename){
 
 int display_anal_info(void){
     econio_textcolor(COL_WHITE);
-    econio_gotoxy(75, 5);
+    econio_gotoxy(75, 4);
     printf("                               ");
-    econio_gotoxy(75, 5);
+    econio_gotoxy(75, 4);
     printf("Válassz az alábbi opciók közül!");
     econio_gotoxy(75, 7);
     printf("< Hátra lépés");
-    econio_gotoxy(75, 9);
+    econio_gotoxy(75, 8);
     printf("> Előre lépés");
-    econio_gotoxy(75, 11);
+    econio_gotoxy(75, 9);
     printf("1. Alapállásra lépés");
-    econio_gotoxy(75, 13);
+    econio_gotoxy(75, 10);
     printf("2. Végállásra lépés");
-    econio_gotoxy(75, 15);
+    econio_gotoxy(75, 11);
     printf("3. Valahányadik lépésre lépés");
-    econio_gotoxy(75, 17);
-    printf("4. Alternatív lépés megadása");
-    econio_gotoxy(75, 19);
+    econio_gotoxy(75, 12);
+    printf("4. Új mellékág létrehozása");
+    econio_gotoxy(75, 13);
+    printf("5. Mellékágra lépés");
+    econio_gotoxy(75, 14);
     printf("X. Kilépés");
+    draw_square(74, 6, 104, 15);
     while(true){
         if(econio_kbhit()){
             switch(econio_getch()){

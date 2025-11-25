@@ -389,4 +389,42 @@ void pawn_promotion(Input move, char position[8][8]){
     }
 
 }
+
+void reconstruct_move(char board_now[8][8], char board_prev[8][8], char* move_buffer){
+    int changes = 0;
+    int src_r = -1, src_c = -1;
+    int dst_r = -1, dst_c = -1;
+    for(int row = 0; row < 8; row++){
+        for(int column = 0; column < 8; column++){
+            if(board_now[row][column] == board_prev[row][column]){
+                changes++;
+
+                if(board_now[row][column] == '.'){//Innen ellépett
+                    char figure_prev = board_prev[row][column];
+                    if(figure_prev == 'k' || figure_prev == 'K'){
+                        src_r = row;
+                        src_c = column;
+                    } else if(src_r == -1){
+                        src_r = row;
+                        src_c = column;
+                    }
+                } else { //Ide lépett
+                    char figure_now = board_now[row][column];
+                    if(figure_now == 'k' || figure_now == 'K'){
+                        dst_r = row;
+                        dst_c = column;
+                    } else if (dst_r == -1) {
+                        dst_r = row; dst_c = column;
+                    }
+                }
+            }
+        }
+    }
+    if(src_r != -1 && dst_r != -1 && src_c != -1 && dst_c != -1){
+        move_buffer[0] = src_c + 'A';
+        move_buffer[1] = src_r + '0';
+        move_buffer[2] = dst_c + 'A';
+        move_buffer[3] = dst_r + '0';
+    }
+}
 //TODO: MATT PATT, EN PASSANT, GYALOG ÁTVÁLTOZÁS

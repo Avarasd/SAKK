@@ -62,3 +62,5 @@ bool any_valid_moves(char position[8][8], bool isWhiteTurn);
 void pawn_promotion(Input move, char position[8][8]);
 
 void board_print(char position[8][8]);
+
+void reconstruct_move(char board_now[8][8], char board_prev[8][8], char* move_buffer);

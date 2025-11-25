@@ -39,6 +39,16 @@ void booleans_init(Booleans* b){
     b->playing = true;
 }
 
+void all_alternative_moves(Board* curr){
+    char (*allMoves)[5] = malloc(curr->numNext * sizeof(*allMoves));
+    for(int board_index = 0; board_index < curr->numNext; board_index++){
+        reconstruct_move(curr->next[board_index]->allas, curr->allas, allMoves[board_index]);
+    }
+    //display_all_alternative_moves(allMoves, curr->numNext);
+
+    free(allMoves);
+}
+
 State game_mode_display(int minutes){
     if(head != NULL) free_all(head);
     head = create_board(NULL);
@@ -95,22 +105,22 @@ State anal_mode_display(void){
     if(head == NULL){
         return STATE_ANALYSIS_MENU;
     }
-    char curr_board[8][8];
-    Board* curr_board = head->allas;
-    memcpy(curr_board, head->allas, sizeof(curr_board));
+    Board* curr_board = head;
     display_clear();
     int move_count = 1;
-    display_board(curr_board, 32, 5);
-    int input = display_anal_info();
-    switch(input){
-        case 'l': 
-        case 'r':
-        case 'x':
-        case 'X':
-        case '1': 
-        case '2':
-        case '3':
-        case '4':
+    while(true){
+        display_board(curr_board->allas, 32, 5);
+        all_alternative_moves(curr_board);
+        int input = display_anal_info();
+        switch(input){
+            case 'l': if(curr_board != head) curr_board = curr_board->prev; break;
+            case 'r': if(curr_board->numNext != 0) curr_board = curr_board->next[0]; break;
+            case 'x': return STATE_ANALYSIS_END; break;
+            case '1': curr_board = head; break;
+            case '2': curr_board = find_last_board(curr_board); break;
+            case '3': curr_board = search_board_linear(head, 2); break;
+            case '4':
+        }
     }
 }
 
@@ -143,10 +153,16 @@ int main(){
                 break;
             case STATE_ANALYSIS_RUNNING:
                 load_boards(fileName);
-                anal_mode_display();
+                currentState = anal_mode_display();
                 break;
             case STATE_GAME_END:
                 currentState = game_mode_end(fileName);
+                save_boards(fileName);
+                free_all(head);
+                head = NULL;
+                break;
+            case STATE_ANALYSIS_END:
+                currentState = STATE_MAIN_MENU;
                 save_boards(fileName);
                 free_all(head);
                 head = NULL;

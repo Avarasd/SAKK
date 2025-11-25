@@ -9,6 +9,7 @@ typedef enum{
     STATE_ANALYSIS_MENU,
     STATE_ANALYSIS_SETUP,
     STATE_ANALYSIS_RUNNING,
+    STATE_ANALYSIS_END,
     STATE_EXIT
 } State;
 
@@ -29,6 +30,6 @@ State display_menu(void);
 State anal_mode_menu(void);
 
 bool anal_mode_file_set(char* filename);
-char display_anal_info(void);
+int display_anal_info(void);
 int game_mode_time_set(void);
 State game_mode_end(char* buffer);
