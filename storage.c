@@ -1,7 +1,11 @@
+/*
+Tóth Avar Áron
+DQMKMR
+*/
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-
 #include "storage.h"
 
 static int maxid = 0;
