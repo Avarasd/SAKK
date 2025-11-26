@@ -379,7 +379,6 @@ void display_all_alternative_moves(char (*move_arr)[5]){
 }
 
 char display_ask_promotion(void){
-    bool picked = false;
     econio_gotoxy(75, 7);
     printf("GYALOGÁTVÁLTOZÁS!");
     econio_gotoxy(75, 9);
