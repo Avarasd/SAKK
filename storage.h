@@ -30,3 +30,5 @@ void load_boards(char* filename);
 Board* find_last_board(Board* curr);
 
 Board* search_board_linear(Board* head, int move_count);
+
+int find_last_board_move_count(Board* head);

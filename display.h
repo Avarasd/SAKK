@@ -18,12 +18,13 @@ void display_init();
 void display_clear();
 void display_sleep(int seconds);
 
+void display_all_alternative_moves(char (*move_arr)[5]);
 void display_board(char position[8][8], int x, int y);
 void display_info(bool isWhiteTurn, int movec);
 void display_get_input(char* buffer);
 void display_game_state(bool isValid, bool isCheck, bool isMate, bool isStalemate);
 void update_moves(char move[5], int move_count);
-
+int display_get_char(void);
 
 State game_mode_menu(void);
 State display_menu(void);

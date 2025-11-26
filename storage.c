@@ -66,7 +66,7 @@ static Board* create_board_from_element(BoardElement* element){
 
 Board* add_new_board(Board *curr){
     Board* nextboard = NULL;
-    Board** new = realloc(curr -> next, (curr->numNext + 1)*(sizeof(Board)));
+    Board** new = realloc(curr -> next, (curr->numNext + 1)*(sizeof(Board*)));
 
     if(new != NULL){
         curr->next = new;
@@ -125,10 +125,7 @@ void load_boards(char* filename){
     int size;
     FILE* filepointer;
     filepointer = fopen(filename, "rb");
-    if(filepointer == NULL){
-        printf("ASDADSADSADA");
-        return;
-    }
+    if(filepointer == NULL) return;
     while((size = fread(&element, sizeof(element), 1, filepointer)) > 0){
         printf("%d %d BOARD\n", element.id, element.previd);
         if(size != 1) break; //TODO HIBAKOD
@@ -152,17 +149,28 @@ static Board* search_board(int id, Board* curr){
 
 Board* find_last_board(Board* curr){
     Board* last = curr;
-    while(last->next != NULL){
+    while(last->numNext > 0){
         last = last->next[0];
     }
     return last;
 }
 
 Board* search_board_linear(Board* head, int move_count){
+    if(head == NULL)return NULL;
     Board* found = head;
     for(int i = 0; i < move_count; i++){
-        if(found->next == NULL) return NULL;
+        if(found->numNext <= 0 || found->next == NULL) return NULL;
         found = found->next[0];
     }
     return found;
+}
+
+int find_last_board_move_count(Board* head){
+    Board* curr = head;
+    int count = 0;
+    while(curr->numNext > 0){
+        curr = curr->next[0];
+        count += 1;
+    }
+    return count;
 }

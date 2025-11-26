@@ -40,11 +40,11 @@ void booleans_init(Booleans* b){
 }
 
 void all_alternative_moves(Board* curr){
-    char (*allMoves)[5] = malloc(curr->numNext * sizeof(*allMoves));
+    char (*allMoves)[5] = malloc(curr->numNext * sizeof(char[5]));
     for(int board_index = 0; board_index < curr->numNext; board_index++){
         reconstruct_move(curr->next[board_index]->allas, curr->allas, allMoves[board_index]);
     }
-    //display_all_alternative_moves(allMoves, curr->numNext);
+    display_all_alternative_moves(allMoves);
 
     free(allMoves);
 }
@@ -107,19 +107,47 @@ State anal_mode_display(void){
     }
     Board* curr_board = head;
     display_clear();
-    int move_count = 1;
+    int move_count = 0;
     while(true){
         display_board(curr_board->allas, 32, 5);
         all_alternative_moves(curr_board);
         int input = display_anal_info();
         switch(input){
-            case 'l': if(curr_board != head) curr_board = curr_board->prev; break;
-            case 'r': if(curr_board->numNext != 0) curr_board = curr_board->next[0]; break;
+            case 'l': {
+                if(curr_board != head){ 
+                    curr_board = curr_board->prev; 
+                    move_count--; 
+                }
+                break;
+            }
+            case 'r': {
+                if(curr_board->numNext != 0){
+                    curr_board = curr_board->next[0];
+                    move_count++; 
+                }
+                break;
+            }
+            case '1': {
+                curr_board = head; 
+                move_count = 0;
+                break;
+            }
+            case '2': {
+                curr_board = find_last_board(curr_board);
+                move_count = find_last_board_move_count(head);
+                break;
+            }
+            case '3': {
+                move_count = display_get_char();
+                if(move_count < 0) move_count = 1; //TODO WARNING ÜZENET
+                if(move_count > find_last_board_move_count(head)) move_count = find_last_board_move_count(head);
+                Board* result = search_board_linear(head, move_count);
+                if(result != NULL) curr_board = result;
+                break;
+            }
+            case '4': break;
+            case '5': break;
             case 'x': return STATE_ANALYSIS_END; break;
-            case '1': curr_board = head; break;
-            case '2': curr_board = find_last_board(curr_board); break;
-            case '3': curr_board = search_board_linear(head, 2); break;
-            case '4':
         }
     }
 }
@@ -148,11 +176,13 @@ int main(){
                 currentState = anal_mode_menu();
                 break;
             case STATE_ANALYSIS_SETUP:
-                if(anal_mode_file_set(fileName)) currentState = STATE_ANALYSIS_RUNNING;
+                if(anal_mode_file_set(fileName)){
+                    currentState = STATE_ANALYSIS_RUNNING;
+                    load_boards(fileName);
+                }
                 else currentState = STATE_ANALYSIS_MENU;
                 break;
             case STATE_ANALYSIS_RUNNING:
-                load_boards(fileName);
                 currentState = anal_mode_display();
                 break;
             case STATE_GAME_END:

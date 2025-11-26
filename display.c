@@ -1,19 +1,19 @@
 #include <stdio.h>
-#include <time.h>      // REQUIRED for time()
+#include <time.h>
 #include <stdbool.h>
 #include <stdlib.h>
 #include <direct.h>
 #include "econio.h"
 #include "display.h"
 #ifdef _WIN32
-#include <windows.h> // Ez kell a SetConsoleOutputCP-hez
+#include <windows.h>
 #endif
 
 void display_init(void) {
     #ifdef _WIN32
     SetConsoleOutputCP(65001);
     #endif
-    econio_rawmode(); // Alapból raw mód a menühöz
+    econio_rawmode();
 }
 
 void display_clear(){
@@ -22,6 +22,20 @@ void display_clear(){
 
 void display_sleep(int seconds){
     econio_sleep(seconds);
+}
+
+int display_get_char(void){
+    int input = -1;
+    econio_gotoxy(31, 17);
+    printf("Adj meg egy lépésszámot:");
+    draw_square(30, 16, 62, 18);
+    econio_gotoxy(55, 17);
+    econio_normalmode();
+    scanf(" %d", &input);
+    econio_rawmode();
+    econio_gotoxy(55,17);
+    for(int i = 0; i < 5; i++) printf(" ");
+    return input;
 }
 
 //FORRÁS: INTERNET
@@ -170,7 +184,6 @@ State game_mode_end(char* buffer){
     }
 }
 
-
 State game_mode_menu(void){
     econio_clrscr();
     econio_gotoxy(34, 5);
@@ -190,6 +203,7 @@ State game_mode_menu(void){
     }
     //econio_draw_board();
 }
+
 State anal_mode_menu(void){
     econio_clrscr();
     econio_gotoxy(34, 5);
@@ -215,58 +229,106 @@ bool anal_mode_file_set(char* filename){
     WIN32_FIND_DATA findData;
     HANDLE hFind;
     econio_clrscr();
-    econio_gotoxy(31, 5);
-    printf("<Válassz egy fájl az alábbiak közül>");
-    char fileList[10][100];
-    int count = 0;
-    int y_offset = 0;
+    char fileList[100][40];
+    int totalFiles = 0;
+
     hFind = FindFirstFile("Games\\*.dat", &findData);
     if(hFind == INVALID_HANDLE_VALUE){
-        econio_gotoxy(31, 7);
+        econio_gotoxy(31, 3);
         printf("Nincs betölthető fájl");
-        econio_gotoxy(31, 9);
+        econio_gotoxy(31, 5);
         printf("Nyomj egy gombot a visszalépéshez");
-        draw_square(29,4,67,11);
+        draw_square(29,2,67,7);
         while(true){
             if(econio_kbhit()) return false;
         }
     }
-    econio_gotoxy(32, 7);
+    econio_gotoxy(32, 3);
     printf("Válassz sorszámot:");
     do{
-        if(count < 10){
-            econio_gotoxy(31, 9 + y_offset);
-            strcpy(fileList[count], findData.cFileName);
-            printf("%d. %s", count + 1, fileList[count]);
-            count++;
-            y_offset += 2;
+        if(totalFiles < 100){
+            // econio_gotoxy(31, 9 + y_offset);
+            strcpy(fileList[totalFiles], findData.cFileName);
+            // printf("%d. %s", totalFiles + 1, fileList[totalFiles]);
+            totalFiles++;
+            // y_offset += 2;
         }
     } while(FindNextFile(hFind, &findData) != 0);
-
     FindClose(hFind);
-    draw_square(29,4,67,9 + y_offset);
-    econio_gotoxy(32, 11 + y_offset);
-    char choice;
+
+    int page = 0;
+    int totalPages = (totalFiles + 9) / 10;
     while(true){
-        if(econio_kbhit()){
-            choice = econio_getch();
+        if(page < 0) page = 0;
+        if(page >= totalPages) page = totalPages - 1;
+        if(totalFiles == 0) return false; 
+
+        econio_clrscr();
+        econio_gotoxy(31, 1);
+        printf("<Válassz egy fájlt> Oldal: %d/%d", page + 1, totalPages);
+        int start = page * 10;
+        int end = start + 10;
+        if(end > totalFiles) end = totalFiles;
+        int itemsOnPage = end - start;
+        int i = 0;
+        for(i = start; i < end; i++){
+            econio_gotoxy(31, 3 + (i%10)*2);
+            int displayNum = (i % 10) + 1;
+            if (displayNum == 10) displayNum = 0;
+            
+            printf("%d. %.32s", displayNum, fileList[i]);
+        }
+        draw_square(29,0,67,5 + itemsOnPage*2);
+
+        econio_gotoxy(75, 1);
+        printf("Az alábbi opciók közül válassz:");
+        econio_gotoxy(75, 3);
+        printf("< Előző lapra lépés");
+        econio_gotoxy(75, 5);
+        printf("> Következő lapra lépés");
+        econio_gotoxy(75, 7);
+        printf("0-9: Fájl kiválasztása");
+        econio_gotoxy(75, 9);
+        printf("X: kilépés");
+
+        econio_gotoxy(32, 7 + itemsOnPage*2);
+        while(!econio_kbhit());
+        char input = econio_getch();
+
+        switch(input){
+            case KEY_LEFT: 
+                page--; 
+                break;
+            case KEY_RIGHT: 
+                page++; 
+                break;
+            case KEY_ESCAPE:
+            case 'x':
+            case 'b':
+                return false;
+
+            default: {
+                if(input >= '0' && input <= '9'){
+                    int selection = input - '0';
+                    if(selection == 0) selection = 10;
+                    if(selection <= itemsOnPage){
+                        sprintf(filename, "Games\\%s", fileList[start + selection - 1]);
+                        return true;
+                    }
+                } else {
+                    econio_gotoxy(32, 9 + itemsOnPage*2);
+                    printf("Érvénytelen sorszám");
+                    econio_sleep(1);
+                }
+            }
             break;
         }
     }
-    int input = choice - '0';
-    if(input > 0 && input < count + 1){
-        sprintf(filename, "Games\\%s", fileList[input - 1]);
-        return true;
-    }else{
-        printf("Érvénytelen sorszám");
-        econio_sleep(2);
-        return false;
-    }
     #else
-        econio_gotoxy(31,5);
-        printf("Ez a funkció csak Windowson elérhető");
-        return false;
-    #endif 
+    econio_gotoxy(31, 5);
+    printf("Ez a funkció sajnos csak Windowson elérhető");
+    return false;
+    #endif
 }
 
 int display_anal_info(void){
@@ -302,12 +364,19 @@ int display_anal_info(void){
                 case '1' : return '1'; break;
                 case '2' : return '2'; break;
                 case '3' : return '3'; break;
-                case '4' : return '3'; break;
+                case '4' : return '4'; break;
+                case '5' : return '5'; break;
             }
         }
     }
 }
 
+void display_all_alternative_moves(char (*move_arr)[5]){
+    econio_textcolor(COL_RED);
+    econio_gotoxy(40, 21);
+    printf("ADASDASDAS");
+    econio_textcolor(COL_RESET);
+}
 
 State display_menu(void){
     while(true){
