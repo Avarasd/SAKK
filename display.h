@@ -18,7 +18,7 @@ void display_init();
 void display_clear();
 void display_sleep(int seconds);
 
-void display_all_alternative_moves(char (*move_arr)[5]);
+void display_all_alternative_moves(char (*move_arr)[5], int size);
 void display_board(char position[8][8], int x, int y);
 void display_info(bool isWhiteTurn, int movec);
 void display_get_input(char* buffer);

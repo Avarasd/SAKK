@@ -41,10 +41,11 @@ void booleans_init(Booleans* b){
 
 void all_alternative_moves(Board* curr){
     char (*allMoves)[5] = malloc(curr->numNext * sizeof(char[5]));
-    for(int board_index = 0; board_index < curr->numNext; board_index++){
+    int board_index = 0;
+    for(board_index = 0; board_index < curr->numNext; board_index++){
         reconstruct_move(curr->next[board_index]->allas, curr->allas, allMoves[board_index]);
     }
-    //display_all_alternative_moves(allMoves);
+    display_all_alternative_moves(allMoves, board_index + 1);
 
     free(allMoves);
 }

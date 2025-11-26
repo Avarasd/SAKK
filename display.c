@@ -371,10 +371,28 @@ int display_anal_info(void){
     }
 }
 
-void display_all_alternative_moves(char (*move_arr)[5]){
+void display_all_alternative_moves(char (*move_arr)[5], int size){
+    for(int y = 39; y < 70; y++){
+        econio_gotoxy(20, y);
+        printf("                                    ");
+    }
+
     econio_textcolor(COL_RED);
     econio_gotoxy(40, 21);
-    printf("ADASDASDAS");
+    if(size == 0){
+        printf("Nincs alternatív lépés");
+        econio_textcolor(COL_RESET);
+        return;
+    }
+    else printf("Alternatív lépések:");
+    for(int i = 0; i < size; i++){
+        int column = i%3;
+        int row = i/3;
+
+        econio_gotoxy(40 + column*10, 23 + row);
+        printf("%d. %.5s", i + 1, move_arr[i]);
+    }
+    draw_square(39, 20, 70, 23 + (size+2)/3);
     econio_textcolor(COL_RESET);
 }
 
@@ -400,7 +418,7 @@ char display_ask_promotion(void){
                 econio_gotoxy(75, 7);
                 printf("                  ");  
                 econio_gotoxy(75, 9);
-                printf("                                     ");
+                printf("                                         ");
                 return result; 
             }
         }
