@@ -160,7 +160,7 @@ int main(){
     State currentState = STATE_MAIN_MENU;
     int minutes = 0;
     char fileName[200];
-    while(currentState != STATE_EXIT){
+    while(true){
         switch(currentState){
             case STATE_MAIN_MENU:
                 currentState = display_menu();
@@ -200,6 +200,8 @@ int main(){
                 free_all(head);
                 head = NULL;
                 break;
+            case STATE_EXIT:
+                exit;
         }
     }
      return 0;   
