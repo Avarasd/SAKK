@@ -43,17 +43,33 @@ void all_alternative_moves(Board* curr){
     char (*allMoves)[5] = malloc(curr->numNext * sizeof(char[5]));
     int board_index = 0;
     for(board_index = 0; board_index < curr->numNext; board_index++){
-        reconstruct_move(curr->next[board_index]->allas, curr->allas, allMoves[board_index]);
+        reconstruct_move(curr->next[board_index]->board, curr->board, allMoves[board_index]);
     }
-    display_all_alternative_moves(allMoves, board_index + 1);
+
+    display_all_alternative_moves(allMoves, board_index);
 
     free(allMoves);
+}
+
+void bool_checker_reverse(Board* board, Booleans* b){
+    Board* curr_board = board;
+    while(curr_board->prev != NULL){
+        if(curr_board->board[0][4] != 'k') b->white_king_moved = true;
+        if(curr_board->board[7][4] != 'K') b->black_king_moved = true;
+
+        if(curr_board->board[0][0] != 'r') b->white_rook_A_moved = true;
+        if(curr_board->board[7][0] != 'R') b->black_rook_A_moved = true;
+
+        if(curr_board->board[0][7] != 'r') b->white_rook_H_moved = true;
+        if(curr_board->board[7][7] != 'R') b->black_rook_H_moved = true;
+        curr_board = curr_board->prev;
+    }
 }
 
 State game_mode_display(int minutes){
     if(head != NULL) free_all(head);
     head = create_board(NULL);
-    if(head != NULL) memcpy(head->allas, board, sizeof(board));
+    if(head != NULL) memcpy(head->board, board, sizeof(board));
     Board* curr_node = head;
     booleans_init(&game_booleans);
     display_clear();
@@ -77,7 +93,7 @@ State game_mode_display(int minutes){
             if(curr_node != NULL){
                 Board* next_node = add_new_board(curr_node);
                 if(next_node != NULL){
-                    memcpy(next_node->allas, board, sizeof(board));
+                    memcpy(next_node->board, board, sizeof(board));
 
                     curr_node = next_node;
                 }
@@ -112,8 +128,10 @@ State anal_mode_display(void){
     Board* curr_board = head;
     display_clear();
     int move_count = 0;
+    Booleans anal_booleans;
+    booleans_init(&anal_booleans);
     while(true){
-        display_board(curr_board->allas, 32, 5);
+        display_board(curr_board->board, 32, 5);
         all_alternative_moves(curr_board);
         int input = display_anal_info();
         switch(input){
@@ -149,7 +167,30 @@ State anal_mode_display(void){
                 if(result != NULL) curr_board = result;
                 break;
             }
-            case '4': break;
+            case '4':{
+                char move[5];
+                display_get_input(move);
+                Input formatted_input = curr_move(move, curr_board->board);
+                bool_checker_reverse(curr_board, &anal_booleans);
+                if(is_move_pattern_valid(formatted_input,curr_board->board, !(move_count%2), false, anal_booleans)){
+                    Board* new_board = add_new_board(curr_board);
+                    if(new_board != NULL){
+                        memcpy(new_board->board, curr_board->board, sizeof(curr_board->board));
+                        is_move_pattern_valid(formatted_input, new_board->board, !(move_count%2), true, anal_booleans);
+                        if(pawn_promotion(formatted_input, new_board->board)){
+                            char choice = display_ask_promotion();
+                            do_promotion(formatted_input, new_board->board, choice);
+                        }
+                        anal_booleans.check = is_king_in_check(new_board->board, !(move_count%2));
+                        curr_board = new_board;
+                        move_count += 1;
+                    } else{
+                        //TODO HIBAÜZENET: SIKERTELEN BOARD LÉTREHOZÁS
+                    }
+                } else {
+                    //TODO DISPLAY SZABÁLYTALAN LÉPÉS
+                }
+            } break;
             case '5': break;
             case 'x': return STATE_ANALYSIS_END; break;
         }

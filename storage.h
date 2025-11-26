@@ -4,7 +4,7 @@ DQMKMR
 */
 
 typedef struct board {
-    char allas[8][8];
+    char board[8][8];
     struct board* prev;
     int numNext;
     struct board** next;

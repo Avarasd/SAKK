@@ -12,7 +12,7 @@ static int maxid = 0;
 
 #pragma pack(1)
 typedef struct boardelement {
-    char allas[8][8];
+    char board[8][8];
     int id;
     int previd;
 
@@ -32,7 +32,7 @@ Board* create_board(Board* previous){
         new ->prev = previous;
         new -> next = NULL;
         new -> numNext = 0;
-        new -> allas[0][0] = 'A';
+        new -> board[0][0] = 'A';
         if(previous != NULL){
         new -> previd = previous->id;
         }else new -> previd = -1;
@@ -55,7 +55,7 @@ static Board* create_board_from_element(BoardElement* element){
     }
 
     if (curr != NULL) {
-        memcpy(curr->allas, element->allas, sizeof(element->allas));
+        memcpy(curr->board, element->board, sizeof(element->board));
         curr -> id = element -> id;
         curr -> previd = element -> previd;
         update_maxid(curr -> id);
@@ -98,7 +98,7 @@ static void saveboard(FILE* fp, Board* curr){
 
     element.id = curr->id;
 
-    memcpy(element.allas,curr->allas, sizeof(curr->allas));
+    memcpy(element.board,curr->board, sizeof(curr->board));
 
     element.previd = curr->previd;
 

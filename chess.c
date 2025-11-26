@@ -393,7 +393,7 @@ void reconstruct_move(char board_now[8][8], char board_prev[8][8], char* move_bu
     int dst_r = -1, dst_c = -1;
     for(int row = 0; row < 8; row++){
         for(int column = 0; column < 8; column++){
-            if(board_now[row][column] == board_prev[row][column]){
+            if(board_now[row][column] != board_prev[row][column]){
                 changes++;
 
                 if(board_now[row][column] == '.'){//Innen ellépett
@@ -419,9 +419,10 @@ void reconstruct_move(char board_now[8][8], char board_prev[8][8], char* move_bu
     }
     if(src_r != -1 && dst_r != -1 && src_c != -1 && dst_c != -1){
         move_buffer[0] = src_c + 'A';
-        move_buffer[1] = src_r + '0';
+        move_buffer[1] = src_r + '1';
         move_buffer[2] = dst_c + 'A';
-        move_buffer[3] = dst_r + '0';
+        move_buffer[3] = dst_r + '1';
+        move_buffer[4] = '\0';
     }
 }
 //TODO: MATT PATT, EN PASSANT, GYALOG ÁTVÁLTOZÁS

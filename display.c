@@ -372,7 +372,7 @@ int display_anal_info(void){
 }
 
 void display_all_alternative_moves(char (*move_arr)[5], int size){
-    for(int y = 39; y < 70; y++){
+    for(int y = 39; y <= 70; y++){
         econio_gotoxy(20, y);
         printf("                                    ");
     }
@@ -384,7 +384,7 @@ void display_all_alternative_moves(char (*move_arr)[5], int size){
         econio_textcolor(COL_RESET);
         return;
     }
-    else printf("Alternatív lépések:");
+    else printf("Összes elérhető lépés:");
     for(int i = 0; i < size; i++){
         int column = i%3;
         int row = i/3;
