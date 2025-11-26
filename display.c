@@ -376,7 +376,6 @@ void display_all_alternative_moves(char (*move_arr)[5], int size){
         econio_gotoxy(20, y);
         printf("                                    ");
     }
-
     econio_textcolor(COL_RED);
     econio_gotoxy(40, 21);
     if(size == 0){
@@ -392,6 +391,8 @@ void display_all_alternative_moves(char (*move_arr)[5], int size){
         econio_gotoxy(40 + column*10, 23 + row);
         printf("%d. %.5s", i + 1, move_arr[i]);
     }
+    econio_gotoxy(60, 20);
+    printf("IDK SZAMA: %d", size);
     draw_square(39, 20, 70, 23 + (size+2)/3);
     econio_textcolor(COL_RESET);
 }

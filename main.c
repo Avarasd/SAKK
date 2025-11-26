@@ -46,7 +46,7 @@ void all_alternative_moves(Board* curr){
         reconstruct_move(curr->next[board_index]->board, curr->board, allMoves[board_index]);
     }
 
-    display_all_alternative_moves(allMoves, board_index);
+    display_all_alternative_moves(allMoves, curr->numNext);
 
     free(allMoves);
 }

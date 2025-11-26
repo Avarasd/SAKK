@@ -34,6 +34,13 @@ Input curr_move(char move[5], char position[8][8]) {
     return result;
 }
 
+void setup_distances(Input move, Distances* buffer){
+    buffer->row_distance = abs(move.target_row - move.orig_row);
+    buffer->row_distance_pos = (move.target_row > move.orig_row);
+    buffer->column_distance = abs(move.target_column - move.orig_column);
+    buffer->column_distance_pos = (move.target_column > move.orig_column);
+}
+
 static void pos_change(Input move, char position[8][8]){
     if(move.white){
         position[move.target_row][move.target_column] = move.figure + SMALL_CAP_DISTANCE;
@@ -225,6 +232,33 @@ bool is_castling_valid(Input move, char position[8][8], Distances d, Booleans b)
     return true;
 }
 
+static bool check_geometry_only(Input move, char position[8][8], Booleans b) {
+    Piece movPiece;
+    bool Piece_found = false;
+    for(int i = 0; i < 6; i++){
+        if(move.figure == Pieces[i]->figure){
+            movPiece = *Pieces[i];
+            Piece_found = true;
+        }
+    }
+    if(!Piece_found) return false; 
+    
+    if(is_friendly_fire(move, position)) return false; 
+
+    Distances d;
+    setup_distances(move, &d);
+
+    switch(movPiece.figure){
+        case 'P': return is_pawn_valid(move, position, d);
+        case 'N': return is_knight_valid(move, position, d);
+        case 'K': return is_king_valid(move, position, d);
+        case 'R': return is_rook_valid(move, position, d);
+        case 'B': return is_bishop_valid(move, position, d);
+        case 'Q': return (is_rook_valid(move, position, d) || is_bishop_valid(move, position, d));
+        default: return false;
+    }
+}
+
 bool is_king_in_check(char position[8][8], bool check_WhiteKing){
     //TODO
     Input attack_input;
@@ -248,7 +282,7 @@ bool is_king_in_check(char position[8][8], bool check_WhiteKing){
             temp_input[1] = row + '1';
             attack_input = curr_move(temp_input, position);
             Booleans b = {0};
-            if(is_move_pattern_valid(attack_input, position, !check_WhiteKing, false, b))return true;
+            if(check_geometry_only(attack_input, position, b))return true;
         }
     }
     return false;
@@ -256,52 +290,18 @@ bool is_king_in_check(char position[8][8], bool check_WhiteKing){
 
 bool is_move_pattern_valid(Input move, char position[8][8], bool isWhiteTurn, bool modifyBoard, Booleans b){
     if(isWhiteTurn != move.white) return false;
+    bool geometry_valid = check_geometry_only(move, position, b);
+    if(!geometry_valid){
+        Piece movPiece;
+        for(int i = 0; i <6; i++) if(move.figure == Pieces[i]->figure)movPiece = *Pieces[i];
+        if(movPiece.figure == 'K'){
+            Distances d;
+            setup_distances(move, &d);
 
-    Piece lepoPiece;
-    bool Piece_found = false;
-    for(int i = 0; i < 6; i++){
-        if(move.figure == Pieces[i]->figure){
-            lepoPiece = *Pieces[i];
-            Piece_found = true;
+            if(is_castling_valid(move, position, d, b)) geometry_valid = true;
         }
     }
-
-    if(!Piece_found) return false; //Na nem sikerült megtalálni a bábut, azaz rossz az Input, akkor false return
-    if(is_friendly_fire(move, position)) return false; //Ha a játékos egy saját bábuját próbálja leütni.
-
-    Distances d;
-    d.row_distance = abs(move.target_row - move.orig_row);
-    d.row_distance_pos = (move.target_row > move.orig_row);
-    d.column_distance = abs(move.target_column - move.orig_column);
-    d.column_distance_pos = (move.target_column > move.orig_column);
-    bool is_pattern_valid;
-
-    switch(lepoPiece.figure){
-        case 'P':
-            is_pattern_valid = is_pawn_valid(move, position, d);
-            break;
-        case 'N':
-            is_pattern_valid = is_knight_valid(move, position, d);
-            break;
-        case 'K':
-            is_pattern_valid = is_king_valid(move, position, d) || is_castling_valid(move, position, d, b);
-            break;
-        case 'R':
-            is_pattern_valid = is_rook_valid(move, position, d);
-            break;
-        case 'B':
-            is_pattern_valid = is_bishop_valid(move, position, d);
-            break;
-        case 'Q':
-            is_pattern_valid = (is_rook_valid(move, position, d) || is_bishop_valid(move, position, d));
-            //A resultrálynő szabályosan úgy léphet, mint a futó és a bástya.
-            break;
-        default:
-            is_pattern_valid = false; //Ha valahogyan olyan figure került a változóba, ami nem létezik, akkor egyből false, valamilyen hiba adódott.
-            break;
-    }
-    if(!is_pattern_valid) return false;
-
+    if(!geometry_valid) return false;
     char temp_board[8][8];
     memcpy(temp_board, position, sizeof(char[8][8]));    
     pos_change(move, temp_board);
@@ -309,7 +309,9 @@ bool is_move_pattern_valid(Input move, char position[8][8], bool isWhiteTurn, bo
     if(is_king_in_check(temp_board, isWhiteTurn)) return false;
 
     if(modifyBoard){
-        if(lepoPiece.figure == 'K' && d.column_distance == 2){
+        Distances d;
+        setup_distances(move, &d);
+        if(move.figure == 'K' && d.column_distance == 2){
             int r = move.orig_row;
             bool short_castle = d.column_distance_pos;
             if(short_castle){
@@ -425,4 +427,3 @@ void reconstruct_move(char board_now[8][8], char board_prev[8][8], char* move_bu
         move_buffer[4] = '\0';
     }
 }
-//TODO: MATT PATT, EN PASSANT, GYALOG ÁTVÁLTOZÁS
