@@ -25,6 +25,7 @@ void display_get_input(char* buffer);
 void display_game_state(bool isValid, bool isCheck, bool isMate, bool isStalemate);
 void update_moves(char move[5], int move_count);
 int display_get_char(void);
+char display_ask_promotion(void);
 
 State game_mode_menu(void);
 State display_menu(void);

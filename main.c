@@ -44,7 +44,7 @@ void all_alternative_moves(Board* curr){
     for(int board_index = 0; board_index < curr->numNext; board_index++){
         reconstruct_move(curr->next[board_index]->allas, curr->allas, allMoves[board_index]);
     }
-    display_all_alternative_moves(allMoves);
+    //display_all_alternative_moves(allMoves);
 
     free(allMoves);
 }
@@ -67,7 +67,10 @@ State game_mode_display(int minutes){
         Input formatted_input = curr_move(move, board);
         if(is_move_pattern_valid(formatted_input,board, game_booleans.isWhiteTurn, true, game_booleans)){
             bool_checker(board, &game_booleans);
-            pawn_promotion(formatted_input, board);
+            if(pawn_promotion(formatted_input, board)){
+                char choice = display_ask_promotion();
+                do_promotion(formatted_input, board, choice);
+            };
             update_moves(move, move_count);
 
             if(curr_node != NULL){

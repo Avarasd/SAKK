@@ -378,6 +378,37 @@ void display_all_alternative_moves(char (*move_arr)[5]){
     econio_textcolor(COL_RESET);
 }
 
+char display_ask_promotion(void){
+    bool picked = false;
+    econio_gotoxy(75, 7);
+    printf("GYALOGÁTVÁLTOZÁS!");
+    econio_gotoxy(75, 9);
+    printf("Add meg a bábut, amivé változzon: Q R N B");
+    econio_gotoxy(55,17);
+
+    while(true){
+        if(econio_kbhit()){
+            char input = econio_getch();
+            char result = 0;
+            econio_gotoxy(75, 7);
+            switch(input){
+                case 'q': case 'Q': result = 'Q'; break;
+                case 'r': case 'R': result = 'R'; break;
+                case 'n': case 'N': result = 'N'; break;
+                case 'b': case 'B': result = 'B'; break;
+            }
+            if(result != 0){
+                econio_gotoxy(75, 7);
+                printf("                  ");  
+                econio_gotoxy(75, 9);
+                printf("                                     ");
+                return result; 
+            }
+        }
+        
+    }
+}
+
 State display_menu(void){
     while(true){
         econio_clrscr();
