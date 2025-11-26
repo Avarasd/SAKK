@@ -377,17 +377,8 @@ bool any_valid_moves(char position[8][8], bool isWhiteTurn){
 }
 
 bool pawn_promotion(Input move, char position[8][8]){
-    if(move.figure == 'P' && ((move.white && move.target_row == 7) || (!move.white && move.target_row == 0))){
-        return true;
-        // printf("Atvaltozas! Valassz: Q R B N\n");
-        // char figure_choice;
-        // do{
-        //     scanf(" %c", &figure_choice);
-        //     if(figure_choice >= 'a') figure_choice -= SMALL_CAP_DISTANCE;
-        // }while(figure_choice != 'Q' && figure_choice != 'R' && figure_choice != 'B' && figure_choice != 'N');
-
-        // position[move.target_row][move.target_column] = figure_choice + (move.white ? SMALL_CAP_DISTANCE : 0);
-    }else return false;
+    if(move.figure == 'P' && ((move.white && move.target_row == 7) || (!move.white && move.target_row == 0))) return true;
+    else return false;
 
 }
 
