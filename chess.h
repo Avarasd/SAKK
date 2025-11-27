@@ -6,6 +6,13 @@ DQMKMR
 extern char board[8][8];
 #define SMALL_CAP_DISTANCE 32
 
+#define VAL_QUEEN 9
+#define VAL_ROOK 5
+#define VAL_KNIGHT 3
+#define VAL_BISHOP 3
+#define VAL_PAWN 1
+#define VAL_KING 0
+
 typedef struct input
 {
     int orig_row;
@@ -71,3 +78,5 @@ void reconstruct_move(char board_now[8][8], char board_prev[8][8], char* move_bu
 void do_promotion(Input move, char position[8][8], char figure);
 
 void format_chess_notation(Input move, char* buffer);
+
+int check_eval(char board[8][8]);

@@ -459,3 +459,37 @@ void format_chess_notation(Input move, char* buffer){
             move.target_row + 1);
     }
 }
+
+int check_eval(char board[8][8]) {
+    int eval = 0;
+    for(int i = 0; i < 8; i++) {
+        for(int j = 0; j < 8; j++) {
+            char piece = board[i][j];
+            if(piece == '.') continue;
+            
+            int value = 0;
+            bool isWhite = false;
+            
+            if(piece > 'Z') { // Lowercase -> White
+                isWhite = true;
+                piece -= 32; // Convert to uppercase for switch statement
+            } else { // Uppercase -> Black
+                isWhite = false;
+            }
+            
+            switch(piece){
+                case 'Q': value = VAL_QUEEN; break;
+                case 'R': value = VAL_ROOK; break;
+                case 'N': value = VAL_KNIGHT; break;
+                case 'B': value = VAL_BISHOP; break;
+                case 'P': value = VAL_PAWN; break;
+                case 'K': value = VAL_KING; break;
+                default: value = 0; break;
+            }
+            
+            if(isWhite) eval += value;
+            else eval -= value;
+        }
+    }
+    return eval;
+}

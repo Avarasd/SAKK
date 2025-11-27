@@ -90,9 +90,9 @@ State game_mode_display(int minutes){
     display_clear();
     int move_count = 1;
     while (!game_booleans.mate && !game_booleans.stalemate && game_booleans.playing) {
-
-        display_board(board, 32, 5);
-        display_info(game_booleans.isWhiteTurn, move_count);
+        int eval = check_eval(board);
+        display_board(board, COORD_BOARD_X, COORD_BOARD_Y);
+        display_info(game_booleans.isWhiteTurn, move_count, eval);
 
         char move[5];
         display_get_input(move);
@@ -128,7 +128,7 @@ State game_mode_display(int minutes){
                         game_booleans.stalemate = true;
                     }
                     display_game_state(true, game_booleans.check, game_booleans.mate, game_booleans.stalemate);
-                    display_board(board, 32, 5);
+                    display_board(board, COORD_BOARD_X, COORD_BOARD_Y);
                     display_sleep(5);
             }else display_game_state(true, game_booleans.check, game_booleans.mate, game_booleans.stalemate);
         } else {
@@ -149,9 +149,10 @@ State anal_mode_display(void){
     booleans_init(&anal_booleans);
     load_all_moves(head);
     while(true){
-        display_board(curr_board->board, 32, 5);
+        display_board(curr_board->board, COORD_BOARD_X, COORD_BOARD_Y);
         all_alternative_moves(curr_board);
-        int input = display_anal_info();
+        int eval = check_eval(curr_board->board);
+        int input = display_anal_info(eval);
         switch(input){
             case 'l': {
                 if(curr_board != head){ 

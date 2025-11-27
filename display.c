@@ -45,28 +45,28 @@ void draw_square(int x1, int y1, int x2, int y2) {
 
 int display_get_char(void){
     int input = -1;
-    econio_gotoxy(31, 17);
+    econio_gotoxy(COORD_INPUT_X, COORD_INPUT_Y);
     printf("Adj meg egy lépésszámot:");
     draw_square(30, 16, 62, 18);
-    econio_gotoxy(55, 17);
+    econio_gotoxy(55, COORD_INPUT_Y);
     econio_normalmode();
     scanf(" %d", &input);
     econio_rawmode();
-    econio_gotoxy(55,17);
+    econio_gotoxy(55,COORD_INPUT_Y);
     for(int i = 0; i < 5; i++) printf(" ");
     return input;
 }
 
 int display_get_branch(void){
     int input = -1;
-    econio_gotoxy(31, 17);
+    econio_gotoxy(COORD_INPUT_X, COORD_INPUT_Y);
     printf("Válassz sorszámot:");
     draw_square(30, 16, 62, 18);
-    econio_gotoxy(55, 17);
+    econio_gotoxy(55, COORD_INPUT_Y);
     econio_normalmode();
     scanf(" %d", &input);
     econio_rawmode();
-    econio_gotoxy(55,17);
+    econio_gotoxy(55,COORD_INPUT_Y);
     for(int i = 0; i < 5; i++) printf(" ");
     return input;
 }
@@ -110,22 +110,24 @@ int display_get_branch(void){
     econio_textbackground(COL_RESET);
 }
 
-void display_info(bool isWhiteTurn, int move){
+void display_info(bool isWhiteTurn, int move, int eval){
     econio_textcolor(COL_WHITE);
-    econio_gotoxy(75, 5);
+    econio_gotoxy(COORD_INFO_X, COORD_INFO_Y);
     printf("                        ");
-    econio_gotoxy(75, 5);
+    econio_gotoxy(COORD_INFO_X, COORD_INFO_Y);
     printf("%d. LÉPÉS, %s JÖN", move, isWhiteTurn ? "VILÁGOS" : "SÖTÉT");
+    econio_gotoxy(COORD_INFO_X, COORD_INFO_Y + 1);
+    printf("Értékelés: %d", eval);
 }
 
 void display_game_state(bool isValid, bool isCheck, bool isMate, bool isStalemate){
     //ELŐZŐ TÖRLÉSE
-    econio_gotoxy(75, 7);
+    econio_gotoxy(COORD_INFO_X, COORD_INFO_Y + 2);
     for(int i=0; i< 30; i++) printf(" ");
 
     econio_textcolor(COL_RED);
     econio_textbackground(COL_BLUE);
-    econio_gotoxy(75, 7);
+    econio_gotoxy(COORD_INFO_X, COORD_INFO_Y + 2);
     if(isValid){
     if(isMate) printf("MATT! A játéknak vége.");
     else if(isStalemate) printf("PATT! A játéknak vége.");
@@ -139,12 +141,12 @@ void display_game_state(bool isValid, bool isCheck, bool isMate, bool isStalemat
 }
 
 void display_get_input(char* input){
-    econio_gotoxy(31, 17);
+    econio_gotoxy(COORD_INPUT_X, COORD_INPUT_Y);
     printf("Adj meg egy lépést:");
     draw_square(30, 16, 62, 18);
-    econio_gotoxy(55,17);
+    econio_gotoxy(55,COORD_INPUT_Y);
     for(int i = 0; i < 5; i++) printf(" ");
-    econio_gotoxy(55, 17);
+    econio_gotoxy(55, COORD_INPUT_Y);
     econio_normalmode();
     scanf("%49s", input);
     econio_rawmode();
@@ -364,27 +366,29 @@ bool anal_mode_file_set(char* filename){
     #endif
 }
 
-int display_anal_info(void){
+int display_anal_info(int eval){
     econio_textcolor(COL_WHITE);
-    econio_gotoxy(75, 4);
+    econio_gotoxy(COORD_INFO_X, COORD_INFO_Y - 1);
     printf("                               ");
-    econio_gotoxy(75, 4);
+    econio_gotoxy(COORD_INFO_X, COORD_INFO_Y - 1);
     printf("Válassz az alábbi opciók közül!");
-    econio_gotoxy(75, 7);
+    econio_gotoxy(COORD_INFO_X, COORD_INFO_Y);
+    printf("Értékelés: %d", eval);
+    econio_gotoxy(COORD_INFO_X, COORD_INFO_Y + 2);
     printf("< Hátra lépés");
-    econio_gotoxy(75, 8);
+    econio_gotoxy(COORD_INFO_X, COORD_INFO_Y + 3);
     printf("> Előre lépés");
-    econio_gotoxy(75, 9);
+    econio_gotoxy(COORD_INFO_X, COORD_INFO_Y + 4);
     printf("1. Alapállásra lépés");
-    econio_gotoxy(75, 10);
+    econio_gotoxy(COORD_INFO_X, COORD_INFO_Y + 5);
     printf("2. Végállásra lépés");
-    econio_gotoxy(75, 11);
+    econio_gotoxy(COORD_INFO_X, COORD_INFO_Y + 6);
     printf("3. Valahányadik lépésre lépés");
-    econio_gotoxy(75, 12);
+    econio_gotoxy(COORD_INFO_X, COORD_INFO_Y + 7);
     printf("4. Új mellékág létrehozása");
-    econio_gotoxy(75, 13);
+    econio_gotoxy(COORD_INFO_X, COORD_INFO_Y + 8);
     printf("5. Mellékágra lépés");
-    econio_gotoxy(75, 14);
+    econio_gotoxy(COORD_INFO_X, COORD_INFO_Y + 9);
     printf("X. Kilépés");
     draw_square(74, 6, 104, 15);
     while(true){
@@ -430,17 +434,17 @@ void display_all_alternative_moves(char (*move_arr)[5], int size){
 }
 
 char display_ask_promotion(void){
-    econio_gotoxy(75, 7);
+    econio_gotoxy(COORD_INFO_X, COORD_INFO_Y + 2);
     printf("GYALOGÁTVÁLTOZÁS!");
-    econio_gotoxy(75, 9);
+    econio_gotoxy(COORD_INFO_X, COORD_INFO_Y + 4);
     printf("Add meg a bábut, amivé változzon: Q R N B");
-    econio_gotoxy(55,17);
+    econio_gotoxy(55,COORD_INPUT_Y);
 
     while(true){
         if(econio_kbhit()){
             char input = econio_getch();
             char result = 0;
-            econio_gotoxy(75, 7);
+            econio_gotoxy(COORD_INFO_X, COORD_INFO_Y + 2);
             switch(input){
                 case 'q': case 'Q': result = 'Q'; break;
                 case 'r': case 'R': result = 'R'; break;
@@ -448,9 +452,9 @@ char display_ask_promotion(void){
                 case 'b': case 'B': result = 'B'; break;
             }
             if(result != 0){
-                econio_gotoxy(75, 7);
+                econio_gotoxy(COORD_INFO_X, COORD_INFO_Y + 2);
                 printf("                  ");  
-                econio_gotoxy(75, 9);
+                econio_gotoxy(COORD_INFO_X, COORD_INFO_Y + 4);
                 printf("                                         ");
                 return result; 
             }
@@ -462,11 +466,11 @@ char display_ask_promotion(void){
 State display_menu(void){
     while(true){
         econio_clrscr();
-        econio_gotoxy(31, 5); printf("<<Üdvözöllek a Sakk programomban!>>");
-        econio_gotoxy(32, 7); printf("Válassz az alábbi menüpontok közül:");
-        econio_gotoxy(30, 8); printf("1. Játék indítása két játékos között");
-        econio_gotoxy(30, 9); printf("2. Elemző mód indítása");
-        econio_gotoxy(30, 10); printf("X. Bezárás");
+        econio_gotoxy(COORD_MENU_X, COORD_MENU_Y); printf("<<Üdvözöllek a Sakk programomban!>>");
+        econio_gotoxy(COORD_MENU_X + 1, COORD_MENU_Y + 2); printf("Válassz az alábbi menüpontok közül:");
+        econio_gotoxy(COORD_MENU_X - 1, COORD_MENU_Y + 3); printf("1. Játék indítása két játékos között");
+        econio_gotoxy(COORD_MENU_X - 1, COORD_MENU_Y + 4); printf("2. Elemző mód indítása");
+        econio_gotoxy(COORD_MENU_X - 1, COORD_MENU_Y + 5); printf("X. Bezárás");
         draw_square(29,4,67,11);
         econio_rawmode();
         while(true){
