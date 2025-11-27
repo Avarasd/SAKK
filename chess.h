@@ -35,11 +35,6 @@ typedef struct booleans
 typedef struct piece
 {
     char figure;
-    int moveelore;
-    int moveoldalra;
-    int moveatlosan;
-    bool hatramove;
-    bool elsomove;
 } Piece;
 
 typedef struct distances{
@@ -48,6 +43,14 @@ typedef struct distances{
     int column_distance;
     bool column_distance_pos;
 } Distances;
+
+typedef struct game_stats{
+    int total_moves;
+    int white_captures;
+    int black_captures;
+    int checks_by_white;
+    int checks_by_black;
+} GameStats;
 
 Input curr_move(char move[5], char position[8][8]);
 
@@ -66,3 +69,5 @@ void board_print(char position[8][8]);
 void reconstruct_move(char board_now[8][8], char board_prev[8][8], char* move_buffer);
 
 void do_promotion(Input move, char position[8][8], char figure);
+
+void format_chess_notation(Input move, char* buffer);

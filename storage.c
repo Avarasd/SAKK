@@ -37,6 +37,7 @@ Board* create_board(Board* previous){
         new -> previd = previous->id;
         }else new -> previd = -1;
         new -> id = maxid++;
+        new -> selectedBranch = 0;
     }
     return new;
 }
@@ -82,7 +83,6 @@ Board* add_new_board(Board *curr){
 
 void free_all(Board* curr){
     maxid = 0;
-    printf("%p %d %p\n", curr, curr->id, curr->next);
     if(curr->next != NULL){
         for(int i = 0; i <curr->numNext; i++){
             free_all(curr->next[i]);
@@ -127,7 +127,6 @@ void load_boards(char* filename){
     filepointer = fopen(filename, "rb");
     if(filepointer == NULL) return;
     while((size = fread(&element, sizeof(element), 1, filepointer)) > 0){
-        printf("%d %d BOARD\n", element.id, element.previd);
         if(size != 1) break; //TODO HIBAKOD
         create_board_from_element(&element);
     }

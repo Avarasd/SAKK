@@ -10,7 +10,7 @@ typedef struct board {
     struct board** next;
     int id;
     int previd;
-
+    int selectedBranch;
 } Board;
 
 extern Board* head;

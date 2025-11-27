@@ -23,8 +23,9 @@ void display_board(char position[8][8], int x, int y);
 void display_info(bool isWhiteTurn, int movec);
 void display_get_input(char* buffer);
 void display_game_state(bool isValid, bool isCheck, bool isMate, bool isStalemate);
-void update_moves(char move[5], int move_count);
+void update_moves(char* move, int move_count);
 int display_get_char(void);
+int display_get_branch(void);
 char display_ask_promotion(void);
 
 State game_mode_menu(void);

@@ -66,6 +66,21 @@ void bool_checker_reverse(Board* board, Booleans* b){
     }
 }
 
+void load_all_moves(Board* head){
+    Board* curr = head;
+    int move_count = 1;
+    while(curr->numNext > 0){
+        char move[5];
+        reconstruct_move(curr->next[0]->board, curr->board, move);
+        Input formatted_input = curr_move(move, curr->board);
+        char formatted_move[8];
+        format_chess_notation(formatted_input, formatted_move);
+        update_moves(formatted_move, move_count);
+        curr = curr->next[0];
+        move_count++;
+    }
+}
+
 State game_mode_display(int minutes){
     if(head != NULL) free_all(head);
     head = create_board(NULL);
@@ -84,11 +99,13 @@ State game_mode_display(int minutes){
         Input formatted_input = curr_move(move, board);
         if(is_move_pattern_valid(formatted_input,board, game_booleans.isWhiteTurn, true, game_booleans)){
             bool_checker(board, &game_booleans);
+            char formatted_move[8];
+            format_chess_notation(formatted_input, formatted_move);
             if(pawn_promotion(formatted_input, board)){
                 char choice = display_ask_promotion();
                 do_promotion(formatted_input, board, choice);
             };
-            update_moves(move, move_count);
+            update_moves(formatted_move, move_count);
 
             if(curr_node != NULL){
                 Board* next_node = add_new_board(curr_node);
@@ -130,6 +147,7 @@ State anal_mode_display(void){
     int move_count = 0;
     Booleans anal_booleans;
     booleans_init(&anal_booleans);
+    load_all_moves(head);
     while(true){
         display_board(curr_board->board, 32, 5);
         all_alternative_moves(curr_board);
@@ -144,7 +162,8 @@ State anal_mode_display(void){
             }
             case 'r': {
                 if(curr_board->numNext != 0){
-                    curr_board = curr_board->next[0];
+                    if(curr_board->selectedBranch >= curr_board->numNext) curr_board->selectedBranch = 0;
+                    curr_board = curr_board->next[curr_board->selectedBranch];
                     move_count++; 
                 }
                 break;
@@ -191,7 +210,19 @@ State anal_mode_display(void){
                     //TODO DISPLAY SZABÁLYTALAN LÉPÉS
                 }
             } break;
-            case '5': break;
+            case '5': {
+                if(curr_board->numNext > 0){
+                    int choice = display_get_branch();
+                    if(choice > 0 && choice <= curr_board->numNext){
+                        curr_board->selectedBranch = choice - 1;
+                        curr_board = curr_board->next[choice - 1];
+                        move_count++;
+                    } else {
+                        //TODO HIBAÜZENET
+                    }
+                }
+                break;
+            }
             case 'x': return STATE_ANALYSIS_END; break;
         }
     }

@@ -2,6 +2,7 @@
 #include <time.h>
 #include <stdbool.h>
 #include <stdlib.h>
+#include <string.h>
 #include <direct.h>
 #include "econio.h"
 #include "display.h"
@@ -24,20 +25,6 @@ void display_sleep(int seconds){
     econio_sleep(seconds);
 }
 
-int display_get_char(void){
-    int input = -1;
-    econio_gotoxy(31, 17);
-    printf("Adj meg egy lépésszámot:");
-    draw_square(30, 16, 62, 18);
-    econio_gotoxy(55, 17);
-    econio_normalmode();
-    scanf(" %d", &input);
-    econio_rawmode();
-    econio_gotoxy(55,17);
-    for(int i = 0; i < 5; i++) printf(" ");
-    return input;
-}
-
 //FORRÁS: INTERNET
 void draw_square(int x1, int y1, int x2, int y2) {
     econio_gotoxy(x1,y1); putchar('+');
@@ -54,6 +41,34 @@ void draw_square(int x1, int y1, int x2, int y2) {
         econio_gotoxy(x1,i); putchar('|');
         econio_gotoxy(x2,i); putchar('|');
     }
+}
+
+int display_get_char(void){
+    int input = -1;
+    econio_gotoxy(31, 17);
+    printf("Adj meg egy lépésszámot:");
+    draw_square(30, 16, 62, 18);
+    econio_gotoxy(55, 17);
+    econio_normalmode();
+    scanf(" %d", &input);
+    econio_rawmode();
+    econio_gotoxy(55,17);
+    for(int i = 0; i < 5; i++) printf(" ");
+    return input;
+}
+
+int display_get_branch(void){
+    int input = -1;
+    econio_gotoxy(31, 17);
+    printf("Válassz sorszámot:");
+    draw_square(30, 16, 62, 18);
+    econio_gotoxy(55, 17);
+    econio_normalmode();
+    scanf(" %d", &input);
+    econio_rawmode();
+    econio_gotoxy(55,17);
+    for(int i = 0; i < 5; i++) printf(" ");
+    return input;
 }
 
  void display_board(char position[8][8], int x, int y){
@@ -131,21 +146,39 @@ void display_get_input(char* input){
     for(int i = 0; i < 5; i++) printf(" ");
     econio_gotoxy(55, 17);
     econio_normalmode();
-    scanf("%s", input);
+    scanf("%49s", input);
     econio_rawmode();
 }
 
-void update_moves(char move[5], int move_count){
-    econio_gotoxy(10, 3);
+void update_moves(char* move, int move_count){
+    int current_row = 5 + ((move_count - 1)/2);
+    
+    econio_gotoxy(6, 3);
     printf("Lépések:");
-    if(move_count %2 == 0){
-        econio_gotoxy(17, 5 + ((move_count - 1) / 2));
-        printf("%s", move);
+
+    if(move_count %2 != 0){
+        // New row (White move)
+        // Clear the new row (which was the bottom border of the previous row)
+        econio_gotoxy(1, current_row);
+        printf("                             "); 
+        
+        // Print move number and move
+        econio_gotoxy(2, current_row);
+        printf("%d.",move_count/2 + 1);
+        econio_gotoxy(6, current_row);
+        printf("%-10s", move);
+        
+        // Clear the line where the new bottom will be
+        econio_gotoxy(1, current_row + 1);
+        printf("                             ");
     } else {
-        econio_gotoxy(6, 5 + ((move_count - 1) / 2));
-        printf("%d. %s -        ",move_count/2 + 1, move);
+        // Same row (Black move)
+        // Just print the move
+        econio_gotoxy(18, current_row);
+        printf("%-10s", move);
     }
-    draw_square(5, 4, 22, 6 + (move_count - 1) / 2);
+    // Always draw the box to ensure the bottom border is present
+    draw_square(1, 4, 28, current_row + 1);
 }
 
 int game_mode_time_set(void){
@@ -198,7 +231,7 @@ State game_mode_menu(void){
         if(econio_kbhit()){
             char input = econio_getch();
             if(input == 'b' || input == 'B') return STATE_MAIN_MENU;
-            else return STATE_GAME_SETUP;
+            else return STATE_GAME_RUNNING;
         }
     }
     //econio_draw_board();
@@ -392,7 +425,6 @@ void display_all_alternative_moves(char (*move_arr)[5], int size){
         printf("%d. %.5s", i + 1, move_arr[i]);
     }
     econio_gotoxy(60, 20);
-    printf("IDK SZAMA: %d", size);
     draw_square(39, 20, 70, 23 + (size+2)/3);
     econio_textcolor(COL_RESET);
 }

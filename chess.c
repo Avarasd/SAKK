@@ -10,12 +10,12 @@ DQMKMR
 #include "chess.h"
 #define SMALL_CAP_DISTANCE 32
 
-Piece pawn = {'P', 1, 0, 0, false, true};
-Piece rook = {'R', 7, 7, 0, true, true};
-Piece knight = {'N', 2, 2, 0, true, true};
-Piece bishop = {'B', 0, 0, 7, true, true};
-Piece queen = {'Q', 7, 7, 7, true, true};
-Piece king = {'K', 1, 1, 1, true, true};
+Piece pawn = {'P'};
+Piece rook = {'R'};
+Piece knight = {'N'};
+Piece bishop = {'B'};
+Piece queen = {'Q'};
+Piece king = {'K'};
 
 Piece * Pieces[6] = {&pawn, &rook, &knight, &bishop, &queen, &king};
 
@@ -26,7 +26,7 @@ Input curr_move(char move[5], char position[8][8]) {
     result.target_column = move[2] - 'A';
     result.target_row = move[3] - '0' - 1;
     result.figure = position[result.orig_row][result.orig_column];
-    if(result.figure > 96){
+    if(result.figure > 'A' + SMALL_CAP_DISTANCE){
         result.white = true;
         result.figure -= SMALL_CAP_DISTANCE;
     }else result.white = false;
@@ -53,7 +53,7 @@ static bool is_friendly_fire(Input move, char position[8][8]){
     char target_piece = position[move.target_row][move.target_column];
     if(target_piece == '.') return false;
 
-    bool target_piece_white = (target_piece > 96); 
+    bool target_piece_white = (target_piece > 'A' + SMALL_CAP_DISTANCE); 
     if(move.white == target_piece_white) return true;
     return false;
 }
@@ -260,7 +260,6 @@ static bool check_geometry_only(Input move, char position[8][8], Booleans b) {
 }
 
 bool is_king_in_check(char position[8][8], bool check_WhiteKing){
-    //TODO
     Input attack_input;
     char temp_input[5];
     bool found_king = false;
@@ -326,6 +325,7 @@ bool is_move_pattern_valid(Input move, char position[8][8], bool isWhiteTurn, bo
     }
     return true;
 }
+
 void board_print(char position[8][8]){
     for (int sor = 7; sor >= 0; sor--) {
                 for (int elem = 0; elem < 8; elem++) {
@@ -336,6 +336,7 @@ void board_print(char position[8][8]){
             }
             printf("A B C D E F G H \n\n");
 }
+
 void bool_checker(char position[8][8], Booleans* b){
     if(position[0][0] != 'r') b->white_rook_A_moved = true;
     if(position[0][7] != 'r') b->white_rook_H_moved = true;
@@ -354,7 +355,7 @@ bool any_valid_moves(char position[8][8], bool isWhiteTurn){
 
             char p = position[r1][c1];
             if(p == '.') continue;
-            bool isPieceWhite = (p > 96);
+            bool isPieceWhite = (p > 'A' + SMALL_CAP_DISTANCE);
             if(isPieceWhite != isWhiteTurn) continue;
 
             for(int r2 = 0; r2 < 8; r2++){
@@ -366,7 +367,7 @@ bool any_valid_moves(char position[8][8], bool isWhiteTurn){
                     test_move.orig_column = c1;
                     test_move.target_row = r2;
                     test_move.target_column = c2;
-                    test_move.figure = (p > 96) ? p- SMALL_CAP_DISTANCE : p;
+                    test_move.figure = (p > 'A' + SMALL_CAP_DISTANCE) ? p- SMALL_CAP_DISTANCE : p;
                     test_move.white = isPieceWhite;
                     test_move.capture = (position[r2][c2] != '.');
 
@@ -425,5 +426,36 @@ void reconstruct_move(char board_now[8][8], char board_prev[8][8], char* move_bu
         move_buffer[2] = dst_c + 'A';
         move_buffer[3] = dst_r + '1';
         move_buffer[4] = '\0';
+    }
+}
+
+void format_chess_notation(Input move, char* buffer){
+    if (move.figure == 'K' && abs(move.target_column - move.orig_column) == 2) {
+        if (move.target_column > move.orig_column) {
+            strcpy(buffer, "O-O");// Rövid sánc
+        } else {
+            strcpy(buffer, "O-O-O");// Hosszú sánc
+        }
+        return;
+    }
+
+    char separator = move.capture ? 'x' : '-';
+    
+    if (move.figure == 'P') {
+        sprintf(buffer, "%c%d%c%c%d",
+            move.orig_column + 'a',
+            move.orig_row + 1,
+            separator,
+            move.target_column + 'a',
+            move.target_row + 1);
+    } 
+    else {
+        sprintf(buffer, "%c%c%d%c%c%d", 
+            move.figure,
+            move.orig_column + 'a',
+            move.orig_row + 1,
+            separator,
+            move.target_column + 'a',
+            move.target_row + 1);
     }
 }
