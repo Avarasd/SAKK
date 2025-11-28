@@ -3,7 +3,6 @@ Tóth Avar Áron
 DQMKMR
 */
 
-extern char board[8][8];
 #define SMALL_CAP_DISTANCE 32
 
 #define VAL_QUEEN 9

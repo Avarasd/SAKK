@@ -14,7 +14,6 @@ typedef struct board {
     int en_passant_col;
 } Board;
 
-extern Board* head;
 
 Board* add_new_board(Board *curr);
 
@@ -22,9 +21,9 @@ Board* create_board(Board* previous);
 
 void free_all(Board* curr);
 
-void save_boards(char* filename);
+void save_boards(char* filename, Board* head);
 
-void load_boards(char* filename);
+void load_boards(char* filename, Board** head);
 
 Board* find_last_board(Board* curr);
 

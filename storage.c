@@ -43,15 +43,15 @@ Board* create_board(Board* previous){
     return new;
 }
 
-static Board* create_board_from_element(BoardElement* element){
+static Board* create_board_from_element(BoardElement* element, Board** head){
     Board* prev = NULL;
     Board* curr = NULL;
 
     if(element -> previd == -1){
         curr = create_board(NULL);
-        head = curr;
+        *head = curr;
     }else{
-        prev = search_board(element -> previd, head);
+        prev = search_board(element -> previd, *head);
         if(prev == NULL) return NULL; 
         curr = add_new_board(prev);
     }
@@ -116,7 +116,7 @@ static void saveboard(FILE* fp, Board* curr){
     return;
 }
 
-void save_boards(char* filename){
+void save_boards(char* filename, Board* head){
     FILE* filepointer;
     filepointer = fopen(filename, "wb");
     saveboard(filepointer, head);
@@ -124,7 +124,7 @@ void save_boards(char* filename){
     fclose(filepointer);
 }
 
-void load_boards(char* filename){
+void load_boards(char* filename, Board** head){
     BoardElement element;
     int size;
     FILE* filepointer;
@@ -132,7 +132,7 @@ void load_boards(char* filename){
     if(filepointer == NULL) return;
     while((size = fread(&element, sizeof(element), 1, filepointer)) > 0){
         if(size != 1) break; //TODO HIBAKOD
-        create_board_from_element(&element);
+        create_board_from_element(&element, head);
     }
     fclose(filepointer);
 }

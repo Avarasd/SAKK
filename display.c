@@ -25,6 +25,9 @@ void display_sleep(int seconds){
     econio_sleep(seconds);
 }
 
+void display_flush(void){
+    econio_flush();
+}
 //FORRÁS: INTERNET
 void draw_square(int x1, int y1, int x2, int y2) {
     econio_gotoxy(x1,y1); putchar('+');
@@ -117,7 +120,7 @@ void display_info(bool isWhiteTurn, int move, int eval){
     econio_gotoxy(COORD_INFO_X, COORD_INFO_Y);
     printf("%d. LÉPÉS, %s JÖN", move, isWhiteTurn ? "VILÁGOS" : "SÖTÉT");
     econio_gotoxy(COORD_INFO_X, COORD_INFO_Y + 1);
-    printf("Értékelés: %d", eval);
+    printf("Értékelés: %2d", eval);
 }
 
 void display_game_state(bool isValid, bool isCheck, bool isMate, bool isStalemate){
@@ -229,7 +232,7 @@ State analysis_mode_menu(void){
         if(econio_kbhit()){
             char input = econio_getch();
             if(input == 'b' || input == 'B') return STATE_MAIN_MENU;
-            else return STATE_ANALYSIS_RUNNING;
+            else return STATE_ANALYSIS_SETUP;
         }
     }
 }
@@ -382,8 +385,8 @@ int display_analysis_info(int eval){
 }
 
 void display_all_alternative_moves(char (*move_arr)[5], int size){
-    for(int y = 39; y <= 70; y++){
-        econio_gotoxy(20, y);
+    for(int y = 20; y <= 23; y++){
+        econio_gotoxy(39, y);
         printf("                                    ");
     }
     econio_textcolor(COL_RED);

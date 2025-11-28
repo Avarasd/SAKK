@@ -27,6 +27,7 @@ void draw_square(int x1, int y1, int x2, int y2);
 void display_init();
 void display_clear();
 void display_sleep(int seconds);
+void display_flush(void);
 
 void display_all_alternative_moves(char (*move_arr)[5], int size);
 void display_board(char position[8][8], int x, int y);

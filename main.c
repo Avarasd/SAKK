@@ -12,9 +12,7 @@ DQMKMR
 #include "chess.h"
 #include "display.h"
 
-Board* head = NULL;
-Booleans game_booleans;
-char board[8][8] = {
+const char STARTING_BOARD[8][8] = {
         {'r', 'n', 'b', 'q', 'k', 'b', 'n', 'r'},
         {'p', 'p', 'p', 'p', 'p', 'p', 'p', 'p'},
         {'.', '.', '.', '.', '.', '.', '.', '.'},
@@ -24,6 +22,8 @@ char board[8][8] = {
         {'P', 'P', 'P', 'P', 'P', 'P', 'P', 'P'},
         {'R', 'N', 'B', 'Q', 'K', 'B', 'N', 'R'}
 };
+
+Booleans game_booleans;
 
 void booleans_init(Booleans* b){
     b->check = false;
@@ -79,13 +79,18 @@ void load_all_moves(Board* head){
         curr = curr->next[0];
         move_count++;
     }
+    display_flush();
 }
 
-State game_mode_display(void){
-    if(head != NULL) free_all(head);
-    head = create_board(NULL);
-    if(head != NULL) memcpy(head->board, board, sizeof(board));
-    Board* curr_node = head;
+State game_mode_display(Board** head){
+    if(*head != NULL) free_all(*head);
+    *head = create_board(NULL);
+    
+    char board[8][8];
+    memcpy(board, STARTING_BOARD, sizeof(STARTING_BOARD));
+
+    if(*head != NULL) memcpy((*head)->board, board, sizeof(board));
+    Board* curr_node = *head;
     booleans_init(&game_booleans);
     display_clear();
     int move_count = 1;
@@ -140,7 +145,7 @@ State game_mode_display(void){
     return STATE_GAME_END;
 }
 
-State analysis_mode_display(void){
+State analysis_mode_display(Board* head){
     if(head == NULL){
         return STATE_ANALYSIS_MENU;
     }
@@ -155,6 +160,7 @@ State analysis_mode_display(void){
         all_alternative_moves(curr_board);
         int eval = check_eval(curr_board->board);
         int input = display_analysis_info(eval);
+
         switch(input){
             case 'l': {
                 if(curr_board != head){ 
@@ -183,7 +189,7 @@ State analysis_mode_display(void){
             }
             case '3': {
                 move_count = display_get_char();
-                if(move_count < 0) move_count = 1; //TODO WARNING ÜZENET
+                if(move_count < 0) move_count = 1;
                 if(move_count > find_last_board_move_count(head)) move_count = find_last_board_move_count(head);
                 Board* result = search_board_linear(head, move_count);
                 if(result != NULL) curr_board = result;
@@ -206,13 +212,12 @@ State analysis_mode_display(void){
                         analysis_booleans.check = is_king_in_check(new_board->board, !(move_count%2));
                         curr_board = new_board;
                         move_count += 1;
-                    } else{
-                        //TODO HIBAÜZENET: SIKERTELEN BOARD LÉTREHOZÁS
+                    }else{
+                        display_game_state(false, false, false, false);
                     }
-                } else {
-                    //TODO DISPLAY SZABÁLYTALAN LÉPÉS
                 }
-            } break;
+                break;
+            }
             case '5': {
                 if(curr_board->numNext > 0){
                     int choice = display_get_branch();
@@ -220,8 +225,6 @@ State analysis_mode_display(void){
                         curr_board->selectedBranch = choice - 1;
                         curr_board = curr_board->next[choice - 1];
                         move_count++;
-                    } else {
-                        //TODO HIBAÜZENET
                     }
                 }
                 break;
@@ -236,6 +239,9 @@ int main(){
     State currentState = STATE_MAIN_MENU;
     char fileName[200];
     bool exited = false;
+    
+    Board* head = NULL;
+
     while(!exited){
         switch(currentState){
             case STATE_MAIN_MENU:
@@ -245,7 +251,7 @@ int main(){
                 currentState = game_mode_menu();
                 break;
             case STATE_GAME_RUNNING:
-                currentState = game_mode_display();
+                currentState = game_mode_display(&head);
                 break;
             case STATE_ANALYSIS_MENU:
                 currentState = analysis_mode_menu();
@@ -253,22 +259,22 @@ int main(){
             case STATE_ANALYSIS_SETUP:
                 if(analysis_mode_file_set(fileName)){
                     currentState = STATE_ANALYSIS_RUNNING;
-                    load_boards(fileName);
+                    load_boards(fileName, &head);
                 }
                 else currentState = STATE_ANALYSIS_MENU;
                 break;
             case STATE_ANALYSIS_RUNNING:
-                currentState = analysis_mode_display();
+                currentState = analysis_mode_display(head);
                 break;
             case STATE_GAME_END:
                 currentState = game_mode_end(fileName);
-                save_boards(fileName);
+                save_boards(fileName, head);
                 free_all(head);
                 head = NULL;
                 break;
             case STATE_ANALYSIS_END:
                 currentState = STATE_MAIN_MENU;
-                save_boards(fileName);
+                save_boards(fileName, head);
                 free_all(head);
                 head = NULL;
                 break;
@@ -277,5 +283,6 @@ int main(){
                 break;
         }
     }
+    if(head != NULL) free_all(head);
     return 0;   
 }
