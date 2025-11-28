@@ -122,7 +122,9 @@ static bool is_path_free(Input move, char position[8][8], Distances d){
     return true;
 }
 
-static bool is_knight_valid(Input move, char position[8][8], Distances d){
+static bool is_knight_valid(Input move,char position[8][8],Distances d){
+    (void)position;
+    (void)move;
     if((d.row_distance == 1 && d.column_distance == 2) || (d.row_distance == 2 && d.column_distance == 1)){
         return true;
     }
@@ -177,7 +179,9 @@ static bool is_pawn_valid(Input move, char position[8][8], Distances d, int en_p
     return false;
 }
 
-static bool is_king_valid(Input move, char position[8][8], Distances d){
+static bool is_king_valid(Input move,char position[8][8],Distances d){
+    (void)position;
+    (void)move;
     if(d.row_distance <= 1 && d.column_distance <= 1){
         if(!(d.row_distance != 0 || d.column_distance != 0)){
             return false;
@@ -268,7 +272,6 @@ bool is_king_in_check(char position[8][8], bool check_WhiteKing){
             temp_input[0] = column + 'A';
             temp_input[1] = row + '1';
             attack_input = curr_move(temp_input, position);
-            Booleans b = {0};
             if(check_geometry_only(attack_input, position, -1))return true;
         }
     }
