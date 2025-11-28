@@ -81,7 +81,7 @@ void load_all_moves(Board* head){
     }
 }
 
-State game_mode_display(int minutes){
+State game_mode_display(void){
     if(head != NULL) free_all(head);
     head = create_board(NULL);
     if(head != NULL) memcpy(head->board, board, sizeof(board));
@@ -97,11 +97,12 @@ State game_mode_display(int minutes){
         char move[5];
         display_get_input(move);
         Input formatted_input = curr_move(move, board);
-        if(is_move_pattern_valid(formatted_input,board, game_booleans.isWhiteTurn, true, game_booleans)){
+        int next_en_passant_col = -1;
+        if(is_move_pattern_valid(formatted_input,board, game_booleans.isWhiteTurn, true, game_booleans, curr_node->en_passant_col, &next_en_passant_col)){
             bool_checker(board, &game_booleans);
             char formatted_move[8];
             format_chess_notation(formatted_input, formatted_move);
-            if(pawn_promotion(formatted_input, board)){
+            if(pawn_promotion(formatted_input)){
                 char choice = display_ask_promotion();
                 do_promotion(formatted_input, board, choice);
             };
@@ -111,6 +112,7 @@ State game_mode_display(int minutes){
                 Board* next_node = add_new_board(curr_node);
                 if(next_node != NULL){
                     memcpy(next_node->board, board, sizeof(board));
+                    next_node->en_passant_col = next_en_passant_col;
 
                     curr_node = next_node;
                 }
@@ -121,7 +123,7 @@ State game_mode_display(int minutes){
             //Megnézi, hogy a következő játékos a lépés után sakkban van-e
             game_booleans.check = is_king_in_check(board, game_booleans.isWhiteTurn);
 
-            if(!any_valid_moves(board, game_booleans.isWhiteTurn)){
+            if(!any_valid_moves(board, game_booleans.isWhiteTurn, curr_node->en_passant_col)){
                     if(game_booleans.check){
                         game_booleans.mate = true;
                     } else {
@@ -138,21 +140,21 @@ State game_mode_display(int minutes){
     return STATE_GAME_END;
 }
 
-State anal_mode_display(void){
+State analysis_mode_display(void){
     if(head == NULL){
         return STATE_ANALYSIS_MENU;
     }
     Board* curr_board = head;
     display_clear();
     int move_count = 0;
-    Booleans anal_booleans;
-    booleans_init(&anal_booleans);
+    Booleans analysis_booleans;
+    booleans_init(&analysis_booleans);
     load_all_moves(head);
     while(true){
         display_board(curr_board->board, COORD_BOARD_X, COORD_BOARD_Y);
         all_alternative_moves(curr_board);
         int eval = check_eval(curr_board->board);
-        int input = display_anal_info(eval);
+        int input = display_analysis_info(eval);
         switch(input){
             case 'l': {
                 if(curr_board != head){ 
@@ -191,17 +193,17 @@ State anal_mode_display(void){
                 char move[5];
                 display_get_input(move);
                 Input formatted_input = curr_move(move, curr_board->board);
-                bool_checker_reverse(curr_board, &anal_booleans);
-                if(is_move_pattern_valid(formatted_input,curr_board->board, !(move_count%2), false, anal_booleans)){
+                bool_checker_reverse(curr_board, &analysis_booleans);
+                if(is_move_pattern_valid(formatted_input,curr_board->board, !(move_count%2), false, analysis_booleans, curr_board->en_passant_col, NULL)){
                     Board* new_board = add_new_board(curr_board);
                     if(new_board != NULL){
                         memcpy(new_board->board, curr_board->board, sizeof(curr_board->board));
-                        is_move_pattern_valid(formatted_input, new_board->board, !(move_count%2), true, anal_booleans);
-                        if(pawn_promotion(formatted_input, new_board->board)){
+                        is_move_pattern_valid(formatted_input, new_board->board, !(move_count%2), true, analysis_booleans, curr_board->en_passant_col, &new_board->en_passant_col);
+                        if(pawn_promotion(formatted_input)){
                             char choice = display_ask_promotion();
                             do_promotion(formatted_input, new_board->board, choice);
                         }
-                        anal_booleans.check = is_king_in_check(new_board->board, !(move_count%2));
+                        analysis_booleans.check = is_king_in_check(new_board->board, !(move_count%2));
                         curr_board = new_board;
                         move_count += 1;
                     } else{
@@ -232,7 +234,6 @@ State anal_mode_display(void){
 int main(){
     display_init();
     State currentState = STATE_MAIN_MENU;
-    int minutes = 0;
     char fileName[200];
     bool exited = false;
     while(!exited){
@@ -243,25 +244,21 @@ int main(){
             case STATE_GAME_MENU:
                 currentState = game_mode_menu();
                 break;
-            case STATE_GAME_SETUP:
-                minutes = game_mode_time_set();
-                currentState = STATE_GAME_RUNNING;
-                break;
             case STATE_GAME_RUNNING:
-                currentState = game_mode_display(minutes);
+                currentState = game_mode_display();
                 break;
             case STATE_ANALYSIS_MENU:
-                currentState = anal_mode_menu();
+                currentState = analysis_mode_menu();
                 break;
             case STATE_ANALYSIS_SETUP:
-                if(anal_mode_file_set(fileName)){
+                if(analysis_mode_file_set(fileName)){
                     currentState = STATE_ANALYSIS_RUNNING;
                     load_boards(fileName);
                 }
                 else currentState = STATE_ANALYSIS_MENU;
                 break;
             case STATE_ANALYSIS_RUNNING:
-                currentState = anal_mode_display();
+                currentState = analysis_mode_display();
                 break;
             case STATE_GAME_END:
                 currentState = game_mode_end(fileName);

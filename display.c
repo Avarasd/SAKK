@@ -159,44 +159,21 @@ void update_moves(char* move, int move_count){
     printf("Lépések:");
 
     if(move_count %2 != 0){
-        // New row (White move)
-        // Clear the new row (which was the bottom border of the previous row)
         econio_gotoxy(1, current_row);
         printf("                             "); 
         
-        // Print move number and move
         econio_gotoxy(2, current_row);
         printf("%d.",move_count/2 + 1);
         econio_gotoxy(6, current_row);
         printf("%-10s", move);
         
-        // Clear the line where the new bottom will be
         econio_gotoxy(1, current_row + 1);
         printf("                             ");
     } else {
-        // Same row (Black move)
-        // Just print the move
         econio_gotoxy(18, current_row);
         printf("%-10s", move);
     }
-    // Always draw the box to ensure the bottom border is present
     draw_square(1, 4, 28, current_row + 1);
-}
-
-int game_mode_time_set(void){
-    int minutes;
-    econio_clrscr();
-    econio_gotoxy(32, 5);
-    printf("<<Add meg a percek számát!>>");
-    draw_square(29,4,60, 9);
-
-    econio_gotoxy(34, 7);
-    econio_normalmode();
-    scanf(" %d", &minutes);
-
-    while(getchar() != '\n');
-    econio_rawmode();
-    return minutes;
 }
 
 State game_mode_end(char* buffer){
@@ -236,10 +213,9 @@ State game_mode_menu(void){
             else return STATE_GAME_RUNNING;
         }
     }
-    //econio_draw_board();
 }
 
-State anal_mode_menu(void){
+State analysis_mode_menu(void){
     econio_clrscr();
     econio_gotoxy(34, 5);
     printf("<<Üdvözöllek az elemző módban>>");
@@ -253,13 +229,13 @@ State anal_mode_menu(void){
         if(econio_kbhit()){
             char input = econio_getch();
             if(input == 'b' || input == 'B') return STATE_MAIN_MENU;
-            else return STATE_ANALYSIS_SETUP;
+            else return STATE_ANALYSIS_RUNNING;
         }
     }
 }
 
 //FORRÁS: INTERNET
-bool anal_mode_file_set(char* filename){
+bool analysis_mode_file_set(char* filename){
     #ifdef _WIN32
     WIN32_FIND_DATA findData;
     HANDLE hFind;
@@ -282,11 +258,8 @@ bool anal_mode_file_set(char* filename){
     printf("Válassz sorszámot:");
     do{
         if(totalFiles < 100){
-            // econio_gotoxy(31, 9 + y_offset);
             strcpy(fileList[totalFiles], findData.cFileName);
-            // printf("%d. %s", totalFiles + 1, fileList[totalFiles]);
             totalFiles++;
-            // y_offset += 2;
         }
     } while(FindNextFile(hFind, &findData) != 0);
     FindClose(hFind);
@@ -366,7 +339,7 @@ bool anal_mode_file_set(char* filename){
     #endif
 }
 
-int display_anal_info(int eval){
+int display_analysis_info(int eval){
     econio_textcolor(COL_WHITE);
     econio_gotoxy(COORD_INFO_X, COORD_INFO_Y - 1);
     printf("                               ");

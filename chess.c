@@ -145,48 +145,36 @@ static bool is_bishop_valid(Input move, char position[8][8], Distances d){
     return is_path_free(move, position, d);
 }
 
-static bool is_pawn_valid(Input move, char position[8][8], Distances d){
-    if(!move.capture && position[move.target_row][move.target_column] != '.') return false; //Előre nem üthet a gyalog, csak oldalra.
+static bool is_pawn_valid(Input move, char position[8][8], Distances d, int en_passant_col){
+    if(move.white && !d.row_distance_pos) return false;
+    if(!move.white && d.row_distance_pos) return false;
 
-    if(move.white){
 
-        if(!d.row_distance_pos) return false; //Világos csak előre léphet
+    if (d.column_distance == 0) {
+        if (position[move.target_row][move.target_column] != '.') return false;
 
-        if(!move.capture){
+        if (d.row_distance == 1) return true;
 
-            if(d.column_distance != 0) return false;
-        
-            if(d.row_distance == 1) return true;
-
-            //Dupla lépés
-
-            if(d.row_distance == 2 && move.orig_row == 1) return (position[move.orig_row + 1][move.orig_column] == '.');
-            //Ha dupla lépésnél a köztes mező üres, akkor szabályos a lépés, ha nem üres, akkor nem.
-        }else{ //ÜTÉS
-            if(d.row_distance == 1 && d.column_distance == 1 ) return true;
-        }
-    }else{ //SÖTÉT
-
-        if(d.row_distance_pos) return false; //Sötét csak "hátra" léphet
-
-        if(!move.capture){
-
-            if(d.column_distance != 0) return false;
-
-            if(d.row_distance == 1) return true;
-
-            //Dupla lépés
-
-            if(d.row_distance == 2 && move.orig_row == 6) return (position[move.orig_row - 1][move.orig_column] == '.');
-            //Ha dupla lépésnél a köztes mező üres, akkor szabályos a lépés, ha nem üres, akkor nem.
-            
-        }else{ //ÜTÉS
-            if(d.row_distance == 1 && d.column_distance == 1) return true;
+        if (d.row_distance == 2) {
+            if (move.white && move.orig_row == 1) {
+                return (position[move.orig_row + 1][move.orig_column] == '.');
+            }
+            if (!move.white && move.orig_row == 6) {
+                return (position[move.orig_row - 1][move.orig_column] == '.');
+            }
         }
     }
-    //TODO: EN PASSANT
 
-    return false; //Ha semelyik szabályos fajtára nem returnöl a függvény, akkor nem szabályos a lépés.
+    else if (d.column_distance == 1 && d.row_distance == 1) {   
+        if (move.capture) return true;
+
+        //En Passant: célmező üres, tehát a capture false
+        if (move.target_column == en_passant_col) {
+            if (move.white && move.orig_row == 4) return true;
+            if (!move.white && move.orig_row == 3) return true;
+        }
+    }
+    return false;
 }
 
 static bool is_king_valid(Input move, char position[8][8], Distances d){
@@ -232,7 +220,7 @@ bool is_castling_valid(Input move, char position[8][8], Distances d, Booleans b)
     return true;
 }
 
-static bool check_geometry_only(Input move, char position[8][8], Booleans b) {
+static bool check_geometry_only(Input move, char position[8][8], int en_passant_col) {
     Piece movPiece;
     bool Piece_found = false;
     for(int i = 0; i < 6; i++){
@@ -249,7 +237,7 @@ static bool check_geometry_only(Input move, char position[8][8], Booleans b) {
     setup_distances(move, &d);
 
     switch(movPiece.figure){
-        case 'P': return is_pawn_valid(move, position, d);
+        case 'P': return is_pawn_valid(move, position, d, en_passant_col);
         case 'N': return is_knight_valid(move, position, d);
         case 'K': return is_king_valid(move, position, d);
         case 'R': return is_rook_valid(move, position, d);
@@ -281,15 +269,15 @@ bool is_king_in_check(char position[8][8], bool check_WhiteKing){
             temp_input[1] = row + '1';
             attack_input = curr_move(temp_input, position);
             Booleans b = {0};
-            if(check_geometry_only(attack_input, position, b))return true;
+            if(check_geometry_only(attack_input, position, -1))return true;
         }
     }
     return false;
 }
 
-bool is_move_pattern_valid(Input move, char position[8][8], bool isWhiteTurn, bool modifyBoard, Booleans b){
+bool is_move_pattern_valid(Input move, char position[8][8], bool isWhiteTurn, bool modifyBoard, Booleans b, int en_passant_col, int* next_en_passant_col){
     if(isWhiteTurn != move.white) return false;
-    bool geometry_valid = check_geometry_only(move, position, b);
+    bool geometry_valid = check_geometry_only(move, position, en_passant_col);
     if(!geometry_valid){
         Piece movPiece;
         for(int i = 0; i <6; i++) if(move.figure == Pieces[i]->figure)movPiece = *Pieces[i];
@@ -304,6 +292,12 @@ bool is_move_pattern_valid(Input move, char position[8][8], bool isWhiteTurn, bo
     char temp_board[8][8];
     memcpy(temp_board, position, sizeof(char[8][8]));    
     pos_change(move, temp_board);
+
+    // En Passant capture simulation
+    if (move.figure == 'P' && move.target_column == en_passant_col && position[move.target_row][move.target_column] == '.') {
+        if (move.white) temp_board[move.target_row - 1][move.target_column] = '.';
+        else temp_board[move.target_row + 1][move.target_column] = '.';
+    }
 
     if(is_king_in_check(temp_board, isWhiteTurn)) return false;
 
@@ -321,20 +315,24 @@ bool is_move_pattern_valid(Input move, char position[8][8], bool isWhiteTurn, bo
                 position[r][0] = '.';
             }
         }
+        
+        // En Passant capture execution
+        if (move.figure == 'P' && move.target_column == en_passant_col && position[move.target_row][move.target_column] == '.') {
+            if (move.white) position[move.target_row - 1][move.target_column] = '.';
+            else position[move.target_row + 1][move.target_column] = '.';
+        }
+
         pos_change(move, position);
+
+        if (next_en_passant_col != NULL) {
+            if (move.figure == 'P' && abs(move.target_row - move.orig_row) == 2) {
+                *next_en_passant_col = move.target_column;
+            } else {
+                *next_en_passant_col = -1;
+            }
+        }
     }
     return true;
-}
-
-void board_print(char position[8][8]){
-    for (int sor = 7; sor >= 0; sor--) {
-                for (int elem = 0; elem < 8; elem++) {
-                    printf("%c ", position[sor][elem]);
-                }
-                printf("%d ",sor + 1);
-                printf(" \n");
-            }
-            printf("A B C D E F G H \n\n");
 }
 
 void bool_checker(char position[8][8], Booleans* b){
@@ -346,7 +344,7 @@ void bool_checker(char position[8][8], Booleans* b){
     if(position[7][4] != 'K') b->black_king_moved = true;
 }
 
-bool any_valid_moves(char position[8][8], bool isWhiteTurn){
+bool any_valid_moves(char position[8][8], bool isWhiteTurn, int en_passant_col){
     Input test_move;
     Booleans b = {0};
     for(int r1 = 0; r1 < 8; r1++){
@@ -371,7 +369,13 @@ bool any_valid_moves(char position[8][8], bool isWhiteTurn){
                     test_move.white = isPieceWhite;
                     test_move.capture = (position[r2][c2] != '.');
 
-                    if(is_move_pattern_valid(test_move, position, isWhiteTurn, false, b)) return true;
+                    if (test_move.figure == 'P' && test_move.target_column == en_passant_col && 
+                        ((test_move.white && test_move.orig_row == 4 && test_move.target_row == 5) || 
+                         (!test_move.white && test_move.orig_row == 3 && test_move.target_row == 2))) {
+                        test_move.capture = true; 
+                    }
+
+                    if(is_move_pattern_valid(test_move, position, isWhiteTurn, false, b, en_passant_col, NULL)) return true;
                 }
             }
         }
@@ -379,7 +383,7 @@ bool any_valid_moves(char position[8][8], bool isWhiteTurn){
     return false;
 }
 
-bool pawn_promotion(Input move, char position[8][8]){
+bool pawn_promotion(Input move){
     if(move.figure == 'P' && ((move.white && move.target_row == 7) || (!move.white && move.target_row == 0))) return true;
     else return false;
 
@@ -394,19 +398,21 @@ void reconstruct_move(char board_now[8][8], char board_prev[8][8], char* move_bu
     int changes = 0;
     int src_r = -1, src_c = -1;
     int dst_r = -1, dst_c = -1;
+    int captured_r = -1, captured_c = -1;
+
     for(int row = 0; row < 8; row++){
         for(int column = 0; column < 8; column++){
             if(board_now[row][column] != board_prev[row][column]){
                 changes++;
 
-                if(board_now[row][column] == '.'){//Innen ellépett
+                if(board_now[row][column] == '.'){//Innen ellépett VAGY ezt ütötték le
                     char figure_prev = board_prev[row][column];
                     if(figure_prev == 'k' || figure_prev == 'K'){
                         src_r = row;
                         src_c = column;
-                    } else if(src_r == -1){
-                        src_r = row;
-                        src_c = column;
+                    } else {
+                        if (src_r == -1) { src_r = row; src_c = column; }
+                        else { captured_r = row; captured_c = column; }
                     }
                 } else { //Ide lépett
                     char figure_now = board_now[row][column];
@@ -420,6 +426,17 @@ void reconstruct_move(char board_now[8][8], char board_prev[8][8], char* move_bu
             }
         }
     }
+
+    if (changes == 3) {
+        char moving_piece = board_now[dst_r][dst_c];
+        if (board_prev[src_r][src_c] == moving_piece) {
+        } else if (captured_r != -1 && board_prev[captured_r][captured_c] == moving_piece) {
+            int temp_r = src_r; int temp_c = src_c;
+            src_r = captured_r; src_c = captured_c;
+            captured_r = temp_r; captured_c = temp_c;
+        }
+    }
+
     if(src_r != -1 && dst_r != -1 && src_c != -1 && dst_c != -1){
         move_buffer[0] = src_c + 'A';
         move_buffer[1] = src_r + '1';
@@ -470,10 +487,10 @@ int check_eval(char board[8][8]) {
             int value = 0;
             bool isWhite = false;
             
-            if(piece > 'Z') { // Lowercase -> White
+            if(piece > 'Z'){
                 isWhite = true;
-                piece -= 32; // Convert to uppercase for switch statement
-            } else { // Uppercase -> Black
+                piece -= SMALL_CAP_DISTANCE;
+            } else {
                 isWhite = false;
             }
             

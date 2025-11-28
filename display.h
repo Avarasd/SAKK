@@ -3,7 +3,6 @@
 typedef enum{
     STATE_MAIN_MENU,
     STATE_GAME_MENU,
-    STATE_GAME_SETUP,
     STATE_GAME_RUNNING,
     STATE_GAME_END,
     STATE_ANALYSIS_MENU,
@@ -13,14 +12,16 @@ typedef enum{
     STATE_EXIT
 } State;
 
-#define COORD_BOARD_X 32
-#define COORD_BOARD_Y 5
-#define COORD_INFO_X 75
-#define COORD_INFO_Y 5
-#define COORD_INPUT_X 31
-#define COORD_INPUT_Y 17
-#define COORD_MENU_X 31
-#define COORD_MENU_Y 5
+typedef enum{
+    COORD_BOARD_X = 32,
+    COORD_BOARD_Y = 5,
+    COORD_INFO_X = 75,
+    COORD_INFO_Y = 5,
+    COORD_INPUT_X = 31,
+    COORD_INPUT_Y = 17,
+    COORD_MENU_X = 31,
+    COORD_MENU_Y = 5
+} Coords;
 
 void draw_square(int x1, int y1, int x2, int y2);
 void display_init();
@@ -39,9 +40,8 @@ char display_ask_promotion(void);
 
 State game_mode_menu(void);
 State display_menu(void);
-State anal_mode_menu(void);
+State analysis_mode_menu(void);
 
-bool anal_mode_file_set(char* filename);
-int display_anal_info(int eval);
-int game_mode_time_set(void);
+bool analysis_mode_file_set(char* filename);
+int display_analysis_info(int eval);
 State game_mode_end(char* buffer);

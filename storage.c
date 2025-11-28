@@ -15,7 +15,7 @@ typedef struct boardelement {
     char board[8][8];
     int id;
     int previd;
-
+    int en_passant_col;
 } BoardElement;
 
 static void update_maxid(int id){
@@ -38,6 +38,7 @@ Board* create_board(Board* previous){
         }else new -> previd = -1;
         new -> id = maxid++;
         new -> selectedBranch = 0;
+        new -> en_passant_col = -1;
     }
     return new;
 }
@@ -59,6 +60,7 @@ static Board* create_board_from_element(BoardElement* element){
         memcpy(curr->board, element->board, sizeof(element->board));
         curr -> id = element -> id;
         curr -> previd = element -> previd;
+        curr -> en_passant_col = element -> en_passant_col;
         update_maxid(curr -> id);
     }
 
@@ -72,10 +74,11 @@ Board* add_new_board(Board *curr){
     if(new != NULL){
         curr->next = new;
         nextboard = create_board(curr);
-        //
+        
         if(nextboard != NULL){
             curr->next[curr->numNext] = nextboard;
-            curr->numNext += 1; 
+            curr->numNext += 1;
+            nextboard->en_passant_col = -1;
         }
     }
     return nextboard; //NULL, ha valami nem jo
@@ -101,6 +104,7 @@ static void saveboard(FILE* fp, Board* curr){
     memcpy(element.board,curr->board, sizeof(curr->board));
 
     element.previd = curr->previd;
+    element.en_passant_col = curr->en_passant_col;
 
     fwrite(&element, sizeof(BoardElement), 1, fp);    
     

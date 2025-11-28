@@ -11,6 +11,7 @@ typedef struct board {
     int id;
     int previd;
     int selectedBranch;
+    int en_passant_col;
 } Board;
 
 extern Board* head;
@@ -18,8 +19,6 @@ extern Board* head;
 Board* add_new_board(Board *curr);
 
 Board* create_board(Board* previous);
-
-Board* add_new_board(Board *curr);
 
 void free_all(Board* curr);
 

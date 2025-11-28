@@ -65,13 +65,11 @@ void bool_checker(char position[8][8], Booleans* b);
  
 bool is_king_in_check(char position[8][8], bool check_WhiteKing);
 
-bool is_move_pattern_valid(Input move, char position[8][8], bool isWhiteTurn, bool modifyBoard, Booleans b);
+bool is_move_pattern_valid(Input move, char position[8][8], bool isWhiteTurn, bool modifyBoard, Booleans b, int en_passant_col, int* next_en_passant_col);
 
-bool any_valid_moves(char position[8][8], bool isWhiteTurn);
+bool any_valid_moves(char position[8][8], bool isWhiteTurn, int en_passant_col);
 
-bool pawn_promotion(Input move, char position[8][8]);
-
-void board_print(char position[8][8]);
+bool pawn_promotion(Input move);
 
 void reconstruct_move(char board_now[8][8], char board_prev[8][8], char* move_buffer);
 
