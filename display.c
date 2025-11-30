@@ -53,7 +53,14 @@ int display_get_char(void){
     draw_square(30, 16, 62, 18);
     econio_gotoxy(55, COORD_INPUT_Y);
     econio_normalmode();
-    scanf(" %d", &input);
+    
+    char buffer[20];
+    if (fgets(buffer, sizeof(buffer), stdin) != NULL) {
+        if (sscanf(buffer, "%d", &input) != 1) {
+            input = -1;
+        }
+    }
+    
     econio_rawmode();
     econio_gotoxy(55,COORD_INPUT_Y);
     for(int i = 0; i < 5; i++) printf(" ");
@@ -67,7 +74,14 @@ int display_get_branch(void){
     draw_square(30, 16, 62, 18);
     econio_gotoxy(55, COORD_INPUT_Y);
     econio_normalmode();
-    scanf(" %d", &input);
+    
+    char buffer[20];
+    if (fgets(buffer, sizeof(buffer), stdin) != NULL) {
+        if (sscanf(buffer, "%d", &input) != 1) {
+            input = -1;
+        }
+    }
+    
     econio_rawmode();
     econio_gotoxy(55,COORD_INPUT_Y);
     for(int i = 0; i < 5; i++) printf(" ");
@@ -151,7 +165,14 @@ void display_get_input(char* input){
     for(int i = 0; i < 5; i++) printf(" ");
     econio_gotoxy(55, COORD_INPUT_Y);
     econio_normalmode();
-    scanf("%49s", input);
+    
+    char buffer[100];
+    if (fgets(buffer, sizeof(buffer), stdin) != NULL) {
+        buffer[strcspn(buffer, "\n")] = 0; 
+        strncpy(input, buffer, 4); 
+        input[4] = '\0'; 
+    }
+    
     econio_rawmode();
 }
 
@@ -188,9 +209,12 @@ State game_mode_end(char* buffer){
 
     econio_gotoxy(34, 7);
     econio_normalmode();
-    scanf("%49s", input);
+    
+    if (fgets(input, 50, stdin) != NULL) {
+        input[strcspn(input, "\n")] = 0;
+    }
     sprintf(buffer, "Games\\%s.dat", input);
-    while(getchar() != '\n');
+    
     econio_rawmode();
     econio_gotoxy(34, 8);
     printf("Sikeres mentés! Nyomj egy gombot a folytatáshoz");

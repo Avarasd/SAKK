@@ -23,8 +23,6 @@ const char STARTING_BOARD[8][8] = {
         {'R', 'N', 'B', 'Q', 'K', 'B', 'N', 'R'}
 };
 
-Booleans game_booleans;
-
 void booleans_init(Booleans* b){
     b->check = false;
     b->mate = false;
@@ -82,7 +80,7 @@ void load_all_moves(Board* head){
     display_flush();
 }
 
-State game_mode_display(Board** head){
+State game_mode_display(Board** head, Booleans game_booleans){
     if(*head != NULL) free_all(*head);
     *head = create_board(NULL);
     
@@ -235,6 +233,8 @@ State analysis_mode_display(Board* head){
 }
 
 int main(){
+    Booleans game_booleans;
+
     display_init();
     State currentState = STATE_MAIN_MENU;
     char fileName[200];
@@ -251,7 +251,7 @@ int main(){
                 currentState = game_mode_menu();
                 break;
             case STATE_GAME_RUNNING:
-                currentState = game_mode_display(&head);
+                currentState = game_mode_display(&head, game_booleans);
                 break;
             case STATE_ANALYSIS_MENU:
                 currentState = analysis_mode_menu();

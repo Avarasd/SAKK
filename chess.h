@@ -50,14 +50,6 @@ typedef struct distances{
     bool column_distance_pos;
 } Distances;
 
-typedef struct game_stats{
-    int total_moves;
-    int white_captures;
-    int black_captures;
-    int checks_by_white;
-    int checks_by_black;
-} GameStats;
-
 Input curr_move(char move[5], char position[8][8]);
 
 void bool_checker(char position[8][8], Booleans* b);
