@@ -4,4 +4,4 @@
 *.app
 *.dll
 *.so
-*.json
+.vscode/
