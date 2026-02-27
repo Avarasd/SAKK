@@ -1,1 +1,7 @@
-main.exe
+*.o
+*.out
+*.exe
+*.app
+*.dll
+*.so
+*.json
