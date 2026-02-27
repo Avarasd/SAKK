@@ -7,7 +7,7 @@ DQMKMR
 #include <stdlib.h>
 #include <string.h>
 #include "storage.h"
-
+#include "debugmalloc.h"
 static int maxid = 0;
 
 #pragma pack(1)
