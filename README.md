@@ -1,34 +1,34 @@
-# SAKK - Konzolos Sakkprogram C nyelven
+# SAKK - Hungarian Console Chess Program in C
 
-Ez a repository egy teljes értékű, karakteres felületen (TUI - Terminal User Interface) futó sakkprogramot tartalmaz, amely C nyelven íródott. A program interaktív játékmenetet kínál, a lépéseket a billentyűzet segítségével lehet megtenni, és támogatja a játékállások elmentését is.
+This repository contains a fully featured, character-based (TUI - Terminal User Interface) chess program written in C. The program offers interactive gameplay, allows moves to be made using the keyboard, and supports saving game states.
 
-## 📌 Funkciók
+## 📌 Features
 
-- **Teljes sakk logika:** A figurák szabályos mozgásának ellenőrzése, ütés, sakk és sakk-matt detektálása.
-- **Interaktív grafikus felület:** Az `econio` könyvtár segítségével a program színes konzolos megjelenítést használ. A játékos kurzorral navigálhat a táblán.
-- **Játékállás mentése és betöltése:** A félbehagyott játékok a `Games` mappába menthetők, és később onnan visszatölthetők.
-- **Memóriabiztos működés:** A projekt a `debugmalloc` segítségével lett tesztelve a memóriaszivárgások elkerülése érdekében.
+- **Full chess logic:** Validates legal moves for pieces, captures, check, and checkmate detection.
+- **Interactive graphical interface:** Uses the `econio` library to provide a colorful console display. Players can navigate the board using a cursor.
+- **Save and load games:** Unfinished games can be saved to the `Games` folder and loaded later.
+- **Memory-safe operation:** The project was tested using `debugmalloc` to prevent memory leaks.
 
-## 🏗️ Architektúra és Fájlstruktúra
+## 🏗️ Architecture and File Structure
 
-A forráskód moduláris felépítésű, a könnyebb karbantarthatóság és átláthatóság érdekében az MVC (Model-View-Controller) mintát követi:
+The source code is modular, following the MVC (Model-View-Controller) pattern for easier maintenance and clarity:
 
-- **`main.c`**: A fő játékciklust (game loop) tartalmazó belépési pont. Irányítja a menürendszert és összeköti a program moduljait.
-- **`chess.c` / `chess.h`**: A játék magja (Engine / Model). Ezek a fájlok felelnek a sakktábla belső reprezentációjáért és a lépésszabályok validálásáért.
-- **`display.c` / `display.h`**: A vizuális megjelenítésért felelős modul (View). Az `econio.h` funkcióira építkezve rajzolja ki a táblát, a figurákat és a menüket.
-- **`storage.c` / `storage.h`**: A fájlkezelésért felelős modul. Lehetővé teszi a játékállapot kimentését (szerializáció) és beolvasását a merevlemezről.
-- **`econio.c` / `econio.h`**: A konzol terminál manipulálásához szükséges könyvtár (kurzormozgatás, színek, azonnali billentyű-leütés érzékelése).
-- **`debugmalloc.h`**: Fejlesztési eszköz a memóriaszivárgások és a hibás mutató-műveletek kiszűrésére.
+- **`main.c`**: The entry point containing the main game loop. It controls the menu system and connects the program's modules.
+- **`chess.c` / `chess.h`**: The core of the game (Engine / Model). These files handle the internal representation of the chessboard and validate move rules.
+- **`display.c` / `display.h`**: The module responsible for visual presentation (View). Built on `econio.h` functions, it draws the board, pieces, and menus.
+- **`storage.c` / `storage.h`**: The file management module. It allows saving (serialization) and loading game states from the hard drive.
+- **`econio.c` / `econio.h`**: A library necessary for console terminal manipulation (cursor movement, colors, detecting immediate keystrokes).
+- **`debugmalloc.h`**: A development tool for filtering out memory leaks and invalid pointer operations.
 
 ---
 
-## 🚀 Telepítés és fordítás
+## 🚀 Installation and Compilation
 
-A program lefordításához egy C fordítóra (pl. GCC vagy MinGW Windows alatt) van szükség.
+To compile the program, you need a C compiler (e.g., GCC or MinGW on Windows).
 
-### Fordítás parancssorból
+### Compiling from the command line
 
-Mivel a projekt több forrásfájlból áll, az összes `.c` kiterjesztésű állományt be kell vonni a fordítási folyamatba. Nyiss egy terminált a mappa gyökerében, és futtasd ezt:
+Since the project consists of multiple source files, all `.c` extension files must be included in the compilation process. Open a terminal in the root folder and run this:
 
 ```bash
 gcc main.c chess.c display.c storage.c econio.c -o sakk.exe
