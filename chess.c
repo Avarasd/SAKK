@@ -8,7 +8,6 @@ DQMKMR
 #include <stdlib.h>
 #include <string.h>
 #include "chess.h"
-#define SMALL_CAP_DISTANCE 32
 
 Piece pawn = {'P'};
 Piece rook = {'R'};

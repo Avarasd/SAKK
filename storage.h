@@ -14,7 +14,6 @@ typedef struct board {
     int en_passant_col;
 } Board;
 
-
 Board* add_new_board(Board *curr);
 
 Board* create_board(Board* previous);
