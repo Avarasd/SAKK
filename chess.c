@@ -60,57 +60,57 @@ static bool is_friendly_fire(Input move, char position[8][8]){
 
 static bool is_path_free(Input move, char position[8][8], Distances d){
     if (d.row_distance > 0 && d.column_distance == 0) {
-        if (d.row_distance_pos) { // Felfelé lép
+        if (d.row_distance_pos) {
             for (int i = 1; i < d.row_distance; i++) {
                 if (position[move.orig_row + i][move.orig_column] != '.') {
-                    return false; // Útban áll valami
+                    return false;
                 }
             }
-        } else { // Lefelé lép
+        } else {
             for (int i = 1; i < d.row_distance; i++) {
                 if (position[move.orig_row - i][move.orig_column] != '.') {
-                    return false; // Útban áll valami
+                    return false;
                 }
             }
         }
     }
-    // 2. Egyenesen, oszlop mentén (Bástya, resultrálynő)
+
     else if (d.column_distance > 0 && d.row_distance == 0) {
-        if (d.column_distance_pos) { // Jobbra lép
+        if (d.column_distance_pos) {
             for (int i = 1; i < d.column_distance; i++) {
                 if (position[move.orig_row][move.orig_column + i] != '.') {
-                    return false; // Útban áll valami
+                    return false;
                 }
             }
-        } else { // Balra lép
+        } else {
             for (int i = 1; i < d.column_distance; i++) {
                 if (position[move.orig_row][move.orig_column - i] != '.') {
-                    return false; // Útban áll valami
+                    return false;
                 }
             }
         }
     }
-    // 3. Átlósan (Futó, resultrálynő)
+
     else if (d.row_distance == d.column_distance && d.row_distance > 0) {
-        if (d.row_distance_pos && d.column_distance_pos) { // Fel-jobbra
+        if (d.row_distance_pos && d.column_distance_pos) {
             for (int i = 1; i < d.row_distance; i++) {
                 if (position[move.orig_row + i][move.orig_column + i] != '.') {
                     return false;
                 }
             }
-        } else if (d.row_distance_pos && !d.column_distance_pos) { // Fel-balra
+        } else if (d.row_distance_pos && !d.column_distance_pos) {
             for (int i = 1; i < d.row_distance; i++) {
                 if (position[move.orig_row + i][move.orig_column - i] != '.') {
                     return false;
                 }
             }
-        } else if (!d.row_distance_pos && d.column_distance_pos) { // Le-jobbra
+        } else if (!d.row_distance_pos && d.column_distance_pos) {
             for (int i = 1; i < d.row_distance; i++) {
                 if (position[move.orig_row - i][move.orig_column + i] != '.') {
                     return false;
                 }
             }
-        } else if (!d.row_distance_pos && !d.column_distance_pos) { // Le-balra
+        } else if (!d.row_distance_pos && !d.column_distance_pos) {
             for (int i = 1; i < d.row_distance; i++) {
                 if (position[move.orig_row - i][move.orig_column - i] != '.') {
                     return false;
@@ -134,15 +134,11 @@ static bool is_knight_valid(Input move,char position[8][8],Distances d){
 static bool is_rook_valid(Input move, char position[8][8], Distances d){
     if(!((d.row_distance > 0 && d.column_distance == 0 )|| (d.row_distance == 0 && d.column_distance > 0))) return false;
 
-    //Bástya akármennyit nézhet oldalra vagy előre, ezért nem kell azt megnézni, hogy mennyi a távolság
-
     return is_path_free(move, position, d);
 }
 
 static bool is_bishop_valid(Input move, char position[8][8], Distances d){
     if(!(d.row_distance == d.column_distance && d.column_distance != 0)) return false;
-
-    //Futó akármennyit léphet átlósan, nem kell megnézni, hogy mennyi a távolság pontosan.
 
     return is_path_free(move, position, d);
 }
@@ -170,7 +166,6 @@ static bool is_pawn_valid(Input move, char position[8][8], Distances d, int en_p
     else if (d.column_distance == 1 && d.row_distance == 1) {   
         if (move.capture) return true;
 
-        //En Passant: célmező üres, tehát a capture false
         if (move.target_column == en_passant_col) {
             if (move.white && move.orig_row == 4) return true;
             if (!move.white && move.orig_row == 3) return true;
@@ -296,7 +291,6 @@ bool is_move_pattern_valid(Input move, char position[8][8], bool isWhiteTurn, bo
     memcpy(temp_board, position, sizeof(char[8][8]));    
     pos_change(move, temp_board);
 
-    // En Passant capture simulation
     if (move.figure == 'P' && move.target_column == en_passant_col && position[move.target_row][move.target_column] == '.') {
         if (move.white) temp_board[move.target_row - 1][move.target_column] = '.';
         else temp_board[move.target_row + 1][move.target_column] = '.';
@@ -319,7 +313,6 @@ bool is_move_pattern_valid(Input move, char position[8][8], bool isWhiteTurn, bo
             }
         }
         
-        // En Passant capture execution
         if (move.figure == 'P' && move.target_column == en_passant_col && position[move.target_row][move.target_column] == '.') {
             if (move.white) position[move.target_row - 1][move.target_column] = '.';
             else position[move.target_row + 1][move.target_column] = '.';
@@ -408,7 +401,7 @@ void reconstruct_move(char board_now[8][8], char board_prev[8][8], char* move_bu
             if(board_now[row][column] != board_prev[row][column]){
                 changes++;
 
-                if(board_now[row][column] == '.'){//Innen ellépett VAGY ezt ütötték le
+                if(board_now[row][column] == '.'){
                     char figure_prev = board_prev[row][column];
                     if(figure_prev == 'k' || figure_prev == 'K'){
                         src_r = row;
@@ -417,7 +410,7 @@ void reconstruct_move(char board_now[8][8], char board_prev[8][8], char* move_bu
                         if (src_r == -1) { src_r = row; src_c = column; }
                         else { captured_r = row; captured_c = column; }
                     }
-                } else { //Ide lépett
+                } else {
                     char figure_now = board_now[row][column];
                     if(figure_now == 'k' || figure_now == 'K'){
                         dst_r = row;
@@ -452,9 +445,9 @@ void reconstruct_move(char board_now[8][8], char board_prev[8][8], char* move_bu
 void format_chess_notation(Input move, char* buffer){
     if (move.figure == 'K' && abs(move.target_column - move.orig_column) == 2) {
         if (move.target_column > move.orig_column) {
-            strcpy(buffer, "O-O");// Rövid sánc
+            strcpy(buffer, "O-O");
         } else {
-            strcpy(buffer, "O-O-O");// Hosszú sánc
+            strcpy(buffer, "O-O-O");
         }
         return;
     }

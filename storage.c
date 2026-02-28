@@ -81,7 +81,7 @@ Board* add_new_board(Board *curr){
             nextboard->en_passant_col = -1;
         }
     }
-    return nextboard; //NULL, ha valami nem jo
+    return nextboard;
 }
 
 void free_all(Board* curr){
@@ -131,7 +131,7 @@ void load_boards(char* filename, Board** head){
     filepointer = fopen(filename, "rb");
     if(filepointer == NULL) return;
     while((size = fread(&element, sizeof(element), 1, filepointer)) > 0){
-        if(size != 1) break; //TODO HIBAKOD
+        if(size != 1) break;
         create_board_from_element(&element, head);
     }
     fclose(filepointer);

@@ -120,10 +120,9 @@ State game_mode_display(Board** head, Booleans game_booleans){
                     curr_node = next_node;
                 }
             }
-            //Megváltoztatja a következő játékost
+            
             game_booleans.isWhiteTurn = game_booleans.isWhiteTurn ? false : true;
             move_count += 1;
-            //Megnézi, hogy a következő játékos a lépés után sakkban van-e
             game_booleans.check = is_king_in_check(board, game_booleans.isWhiteTurn);
 
             if(!any_valid_moves(board, game_booleans.isWhiteTurn, curr_node->en_passant_col)){

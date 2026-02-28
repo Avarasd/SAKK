@@ -28,7 +28,7 @@ void display_sleep(int seconds){
 void display_flush(void){
     econio_flush();
 }
-//FORRÁS: INTERNET
+
 void draw_square(int x1, int y1, int x2, int y2) {
     econio_gotoxy(x1,y1); putchar('+');
     econio_gotoxy(x2,y1); putchar('+');
@@ -138,7 +138,6 @@ void display_info(bool isWhiteTurn, int move, int eval){
 }
 
 void display_game_state(bool isValid, bool isCheck, bool isMate, bool isStalemate){
-    //ELŐZŐ TÖRLÉSE
     econio_gotoxy(COORD_INFO_X, COORD_INFO_Y + 2);
     for(int i=0; i< 30; i++) printf(" ");
 
@@ -261,7 +260,6 @@ State analysis_mode_menu(void){
     }
 }
 
-//FORRÁS: INTERNET
 bool analysis_mode_file_set(char* filename){
     #ifdef _WIN32
     WIN32_FIND_DATA findData;
