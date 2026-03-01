@@ -1,4 +1,4 @@
-# SAKK - Hungarian Console Chess Program in C
+# Hungarian Console Chess Program in C
 
 This repository contains a fully featured, character-based (TUI - Terminal User Interface) chess program written in C. The program offers interactive two-player gameplay, supports a game analysis mode with branching move trees, and saves game states to disk.
 
