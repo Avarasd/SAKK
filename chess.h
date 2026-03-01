@@ -1,8 +1,3 @@
-/*
-Tóth Avar Áron
-DQMKMR
-*/
-
 #define SMALL_CAP_DISTANCE 32
 
 #define VAL_QUEEN 9

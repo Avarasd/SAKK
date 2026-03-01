@@ -107,7 +107,7 @@ int display_get_branch(void){
             if(curr_piece == '.'){
             printf("   ");
             }else{
-                if(curr_piece > 96){
+                if(curr_piece >= 'a'){
                 econio_textcolor(COL_YELLOW);
             }
             else econio_textcolor(COL_LIGHTGRAY);

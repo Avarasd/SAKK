@@ -1,8 +1,3 @@
-/*
-Tóth Avar Áron
-DQMKMR
-*/
-
 typedef struct board {
     char board[8][8];
     struct board* prev;

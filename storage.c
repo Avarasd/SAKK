@@ -1,8 +1,3 @@
-/*
-Tóth Avar Áron
-DQMKMR
-*/
-
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -86,6 +81,7 @@ Board* add_new_board(Board *curr){
 
 void free_all(Board* curr){
     maxid = 0;
+    if(curr == NULL) return;
     if(curr->next != NULL){
         for(int i = 0; i <curr->numNext; i++){
             free_all(curr->next[i]);
@@ -119,6 +115,7 @@ static void saveboard(FILE* fp, Board* curr){
 void save_boards(char* filename, Board* head){
     FILE* filepointer;
     filepointer = fopen(filename, "wb");
+    if(filepointer == NULL) return;
     saveboard(filepointer, head);
 
     fclose(filepointer);

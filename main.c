@@ -1,8 +1,3 @@
-/*
-Tóth Avar Áron
-DQMKMR
-*/
-
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdbool.h>
