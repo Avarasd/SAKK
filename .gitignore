@@ -1,0 +1,8 @@
+*.o
+*.out
+*.exe
+*.app
+*.dll
+*.so
+.vscode/
+gen_games.c
